@@ -1,0 +1,26 @@
+{
+  "name": "starhaven.io",
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^13.1.8",
+    "@astrojs/rss": "^4.0.18",
+    "@astrojs/sitemap": "^3.7.2",
+    "astro": "^6.1.5"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.2",
+    "prettier-plugin-astro": "^0.14.1",
+    "wrangler": "^4.81.1"
+  }
+}

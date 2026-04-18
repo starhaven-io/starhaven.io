@@ -1,0 +1,68 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { formatLongDate } from '../../lib/date';
+
+const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+
+<Base title="Blog" description="Notes from starhaven.io.">
+  <section>
+    <h1>Blog</h1>
+    {
+      posts.length === 0 ? (
+        <p>Nothing here yet.</p>
+      ) : (
+        <ul class="post-list">
+          {posts.map((post) => (
+            <li>
+              <a href={`/blog/${post.id}/`}>
+                <h2>{post.data.title}</h2>
+                <time datetime={post.data.pubDate.toISOString()}>{formatLongDate(post.data.pubDate)}</time>
+                <p>{post.data.description}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+</Base>
+
+<style>
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .post-list a {
+    display: block;
+    padding: 1.25rem 1.5rem;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    color: inherit;
+  }
+
+  .post-list a:hover {
+    text-decoration: none;
+    border-color: var(--color-link);
+  }
+
+  .post-list h2 {
+    margin: 0 0 0.25rem;
+    font-size: 1.25rem;
+  }
+
+  .post-list time {
+    font-size: 0.875rem;
+    color: var(--color-text-subtle);
+  }
+
+  .post-list p {
+    margin: 0.5rem 0 0;
+  }
+</style>

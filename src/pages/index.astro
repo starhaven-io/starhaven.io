@@ -1,0 +1,124 @@
+---
+import Base from '../layouts/Base.astro';
+
+interface Project {
+  name: string;
+  tagline: string;
+  install?: string;
+  repo: string;
+  site?: string;
+}
+
+const projects: Project[] = [
+  {
+    name: 'Brewy',
+    tagline:
+      'A native macOS GUI for Homebrew. Browse, search, install, and update formulae and casks without opening your terminal.',
+    install: 'brew install brewy',
+    repo: 'https://github.com/starhaven-io/Brewy',
+  },
+  {
+    name: 'macOSdb',
+    tagline:
+      'A catalog of which versions of open-source components ship with each macOS and Xcode release. Includes curl, OpenSSH, LibreSSL, Swift, Apple Clang, and more.',
+    install: 'brew install starhaven-io/tap/macosdb',
+    repo: 'https://github.com/starhaven-io/macOSdb',
+    site: 'https://macosdb.com',
+  },
+  {
+    name: 'pinprick',
+    tagline:
+      'Supply-chain security for GitHub Actions. Pins action references to full SHAs and audits pinned actions for runtime fetches that bypass pinning.',
+    install: 'brew install starhaven-io/tap/pinprick',
+    repo: 'https://github.com/starhaven-io/pinprick',
+    site: 'https://pinprick.rs',
+  },
+];
+---
+
+<Base title="starhaven.io">
+  <section class="intro">
+    <h1>Hi, I'm Patrick.</h1>
+    <p class="lede">
+      I maintain Homebrew and build open-source tools for macOS and developer workflows, mostly via agentic coding. This
+      site is where they live, plus the occasional <a href="/blog/">write-up</a>.
+    </p>
+  </section>
+
+  <section class="projects" aria-labelledby="projects-heading">
+    <h2 id="projects-heading">Projects</h2>
+    <ul class="project-list">
+      {
+        projects.map((project) => (
+          <li class="project">
+            <h3>{project.name}</h3>
+            <p>{project.tagline}</p>
+            {project.install && <code class="install">{project.install}</code>}
+            <p class="links">
+              <a href={project.repo} rel="noopener">
+                Source
+              </a>
+              {project.site && (
+                <>
+                  {' · '}
+                  <a href={project.site} rel="noopener">
+                    Website
+                  </a>
+                </>
+              )}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .intro {
+    padding: 2rem 0 3rem;
+  }
+
+  .lede {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    max-width: 56ch;
+  }
+
+  .projects {
+    padding-bottom: 2rem;
+  }
+
+  .project-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .project {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+  }
+
+  .project h3 {
+    margin-top: 0;
+  }
+
+  .install {
+    display: block;
+    margin: 0.75rem 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    overflow-x: auto;
+  }
+
+  .project .links {
+    margin: 0.75rem 0 0;
+    font-size: 0.9375rem;
+    color: var(--color-text-subtle);
+  }
+</style>

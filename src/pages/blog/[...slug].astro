@@ -1,0 +1,115 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { formatLongDate } from '../../lib/date';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Base title={post.data.title} description={post.data.description}>
+  <article class="post">
+    <header class="post-header">
+      <h1>{post.data.title}</h1>
+      <time datetime={post.data.pubDate.toISOString()}>
+        {formatLongDate(post.data.pubDate)}
+      </time>
+      {
+        post.data.updatedDate && (
+          <span class="updated">
+            {' · updated '}
+            <time datetime={post.data.updatedDate.toISOString()}>{formatLongDate(post.data.updatedDate)}</time>
+          </span>
+        )
+      }
+    </header>
+    <Content />
+  </article>
+</Base>
+
+<style>
+  .post-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .post-header time {
+    color: var(--color-text-subtle);
+    font-size: 0.9375rem;
+  }
+
+  .updated {
+    color: var(--color-text-subtle);
+    font-size: 0.9375rem;
+  }
+
+  .post :global(h2) {
+    font-size: 1.375rem;
+    margin: 2.5rem 0 1rem;
+  }
+
+  .post :global(h3) {
+    font-size: 1.125rem;
+    margin: 2rem 0 0.75rem;
+  }
+
+  .post :global(p) {
+    line-height: 1.75;
+  }
+
+  .post :global(p a),
+  .post :global(li a) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .post :global(ul),
+  .post :global(ol) {
+    margin: 0 0 1rem;
+    padding-left: 1.5rem;
+    color: var(--color-text-secondary);
+    line-height: 1.75;
+  }
+
+  .post :global(li + li) {
+    margin-top: 0.375rem;
+  }
+
+  .post :global(blockquote) {
+    margin: 1.5rem 0;
+    padding: 0.25rem 0 0.25rem 1rem;
+    border-left: 3px solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-style: italic;
+  }
+
+  .post :global(blockquote p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .post :global(hr) {
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    margin: 2.5rem 0;
+  }
+
+  .post :global(pre) {
+    margin: 1.25rem 0;
+    line-height: 1.5;
+  }
+
+  .post :global(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+  }
+</style>

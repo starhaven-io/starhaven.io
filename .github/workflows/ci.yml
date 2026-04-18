@@ -1,0 +1,154 @@
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+defaults:
+  run:
+    shell: bash -xeuo pipefail {0}
+
+concurrency:
+  group: 'ci-${{ github.ref }}'
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  commits:
+    name: Conventional Commits
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check PR title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          PATTERN='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)(\(.+\))?: .+'
+          if [[ ! "${PR_TITLE}" =~ ${PATTERN} ]]; then
+            echo "::error::PR title '${PR_TITLE}' does not follow Conventional Commits."
+            echo ""
+            echo "Expected format: <type>(<scope>): <description>"
+            echo ""
+            echo "Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore"
+            exit 1
+          fi
+
+      - name: Check commit messages
+        if: github.event.action != 'edited'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          PATTERN='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)(\(.+\))?: .+'
+          FAILED=0
+          while IFS= read -r LINE; do
+            SHA="${LINE%% *}"
+            MSG="${LINE#* }"
+            if [[ "${MSG}" == Merge\ * ]]; then
+              continue
+            fi
+            if [[ ! "${MSG}" =~ ${PATTERN} ]]; then
+              echo "::error::Commit ${SHA} does not follow Conventional Commits: '${MSG}'"
+              FAILED=1
+            fi
+          done < <(git log --format="%h %s" "${BASE_SHA}..${HEAD_SHA}")
+
+          if [[ "${FAILED}" -eq 1 ]]; then
+            echo ""
+            echo "All commit messages must follow: <type>(<scope>): <description>"
+            echo "Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore"
+            exit 1
+          fi
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    if: github.event.action != 'edited'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install typos-cli
+        run: cargo install typos-cli --locked --version 1.45.1
+
+      - name: Typos
+        run: typos
+
+      - name: Prettier check
+        run: npm run format:check
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    if: github.event.action != 'edited'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  zizmor:
+    name: zizmor
+    runs-on: ubuntu-latest
+    if: github.event.action != 'edited'
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@71321a20a9ded102f6e9ce5718a2fcec2c4f70d8 # v0.5.2
+        with:
+          persona: pedantic
+
+  conclusion:
+    name: conclusion
+    needs: [commits, lint, build, zizmor]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Result
+        env:
+          COMMITS_RESULT: ${{ needs.commits.result }}
+          LINT_RESULT: ${{ needs.lint.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          ZIZMOR_RESULT: ${{ needs.zizmor.result }}
+        run: |
+          for RESULT in "${COMMITS_RESULT}" "${LINT_RESULT}" "${BUILD_RESULT}" "${ZIZMOR_RESULT}"; do
+            if [[ "${RESULT}" != "success" && "${RESULT}" != "skipped" ]]; then
+              echo "::error::One or more checks failed."
+              exit 1
+            fi
+          done
