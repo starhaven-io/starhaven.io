@@ -23,6 +23,7 @@ export default defineConfig({
         bundleName: 'starhaven-io',
         uploadToken: process.env.CODECOV_TOKEN,
         gitService: 'github',
+        telemetry: false,
       }),
     ],
   },
