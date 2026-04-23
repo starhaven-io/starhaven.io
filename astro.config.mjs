@@ -2,7 +2,6 @@
 import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
-import { codecovVitePlugin } from '@codecov/vite-plugin';
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,16 +14,5 @@ export default defineConfig({
   prefetch: {
     prefetchAll: true,
     defaultStrategy: 'hover',
-  },
-  vite: {
-    plugins: [
-      codecovVitePlugin({
-        enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
-        bundleName: 'starhaven-io',
-        uploadToken: process.env.CODECOV_TOKEN,
-        gitService: 'github',
-        telemetry: false,
-      }),
-    ],
   },
 });
