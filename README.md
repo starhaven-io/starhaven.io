@@ -13,6 +13,8 @@ npm install
 npm run dev
 ```
 
+Run `just install-hooks` once per clone to enable the git hooks (a pre-push `just check` and DCO sign-off enforcement).
+
 ## Deploy
 
 Pushes to `main` that touch this tree deploy to Cloudflare Workers via the `deploy-site` workflow.
