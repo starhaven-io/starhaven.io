@@ -116,6 +116,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Deploy dry-run
+        run: npm run deploy:dry
+        env:
+          WRANGLER_SEND_METRICS: 'false'
+
   zizmor:
     name: zizmor
     runs-on: ubuntu-latest
