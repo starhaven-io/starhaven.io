@@ -1,6 +1,6 @@
 ---
-import '../styles/global.css';
-import { ClientRouter } from 'astro:transitions';
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title: string;
@@ -8,13 +8,13 @@ interface Props {
   ogImage?: string;
 }
 
-const defaultDescription = 'Open-source tools and notes by Patrick Linnane.';
+const defaultDescription = "Open-source tools and notes by Patrick Linnane.";
 
 const { title, description = defaultDescription, ogImage } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = ogImage ? new URL(ogImage, Astro.site).toString() : undefined;
-const fullTitle = title === 'starhaven.io' ? title : `${title} — starhaven.io`;
+const fullTitle = title === "starhaven.io" ? title : `${title} — starhaven.io`;
 const currentYear = new Date().getFullYear();
 ---
 
@@ -35,7 +35,7 @@ const currentYear = new Date().getFullYear();
     {ogImageURL && <meta property="og:image:width" content="1200" />}
     {ogImageURL && <meta property="og:image:height" content="630" />}
 
-    <meta name="twitter:card" content={ogImageURL ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:card" content={ogImageURL ? "summary_large_image" : "summary"} />
     {ogImageURL && <meta name="twitter:image" content={ogImageURL} />}
 
     <meta name="referrer" content="strict-origin-when-cross-origin" />
@@ -71,9 +71,9 @@ const currentYear = new Date().getFullYear();
           <span>© {currentYear} Patrick Linnane</span>
           <span>
             <a href="/blog/">Blog</a>
-            {' · '}
+            {" · "}
             <a href="https://github.com/starhaven-io" rel="noopener">GitHub</a>
-            {' · '}
+            {" · "}
             <a href="/rss.xml">RSS</a>
           </span>
         </nav>

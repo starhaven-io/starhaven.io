@@ -9,7 +9,7 @@ defaults:
     shell: bash -xeuo pipefail {0}
 
 concurrency:
-  group: 'ci-${{ github.ref }}'
+  group: "ci-${{ github.ref }}"
   cancel-in-progress: true
 
 permissions: {}
@@ -119,7 +119,7 @@ jobs:
       - name: Deploy dry-run
         run: npm run deploy:dry
         env:
-          WRANGLER_SEND_METRICS: 'false'
+          WRANGLER_SEND_METRICS: "false"
 
   zizmor:
     name: zizmor
