@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-Website for [starhaven.io](https://starhaven.io) — the landing page for the starhaven.io org and its projects (Brewy, macOSdb, pinprick), plus a blog.
+Website for [starhaven.io](https://starhaven.io) — the landing page for the starhaven.io org and its projects (Brewy, macOSdb, midden, pinprick, pkgstory), plus a blog.
 
 - **Framework:** Astro 6
 - **Deploy:** Cloudflare Workers (`@astrojs/cloudflare` + `wrangler`)
