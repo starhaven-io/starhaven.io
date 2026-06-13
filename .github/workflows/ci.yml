@@ -84,7 +84,8 @@ jobs:
           node-version: 26
 
       - name: Install dependencies
-        run: npm ci
+        # Fail closed on unreviewed install scripts (npm v12 default; see allowScripts in package.json).
+        run: npm ci --strict-allow-scripts
 
       - name: Install typos-cli
         run: cargo install typos-cli --locked --version 1.45.1
@@ -111,7 +112,8 @@ jobs:
           node-version: 26
 
       - name: Install dependencies
-        run: npm ci
+        # Fail closed on unreviewed install scripts (npm v12 default; see allowScripts in package.json).
+        run: npm ci --strict-allow-scripts
 
       - name: Build
         run: npm run build
