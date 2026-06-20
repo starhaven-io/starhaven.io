@@ -1,6 +1,6 @@
 ---
-title: "Hello from starhaven.io"
-description: "A welcome note, the projects in flight, and what the blog will be for."
+title: 'Hello from starhaven.io'
+description: 'A welcome note, the projects in flight, and what the blog will be for.'
 pubDate: 2026-04-17
 ---
 

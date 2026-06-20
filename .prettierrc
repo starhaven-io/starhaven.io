@@ -1,8 +1,15 @@
 {
+  "singleQuote": true,
   "trailingComma": "all",
   "printWidth": 120,
   "plugins": ["prettier-plugin-astro"],
   "overrides": [
+    {
+      "files": ["**/*.yml", "**/*.yaml"],
+      "options": {
+        "singleQuote": false
+      }
+    },
     {
       "files": "*.astro",
       "options": {
