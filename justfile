@@ -6,7 +6,7 @@ build:
 
 # Install dependencies
 install:
-    npm install
+    npm ci --strict-allow-scripts
 
 # Preview the built site
 preview:
@@ -33,6 +33,10 @@ format:
 # Check for typos
 typos:
     typos
+
+# Check built site links
+lychee: build
+    lychee --config lychee.toml --root-dir "$(pwd)/dist/client" 'dist/client/**/*.html' README.md
 
 # Check
 
