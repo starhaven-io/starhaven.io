@@ -3,6 +3,7 @@ dist/
 .astro/
 .wrangler/
 .claude/
+.codex/
 .env
 .env.*
 !.env.example
