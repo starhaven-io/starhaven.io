@@ -3,6 +3,9 @@ name: CI
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
+  push:
+    branches:
+      - main
 
 defaults:
   run:
@@ -17,6 +20,7 @@ permissions: {}
 jobs:
   commits:
     name: Conventional Commits
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -42,7 +46,6 @@ jobs:
           fi
 
       - name: Check commit messages
-        if: github.event.action != 'edited'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -71,7 +74,6 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    if: github.event.action != 'edited'
     permissions:
       contents: read
     steps:
@@ -88,7 +90,7 @@ jobs:
         run: npm ci --strict-allow-scripts
 
       - name: Install typos-cli
-        run: cargo install typos-cli --locked --version 1.45.1
+        run: cargo install typos-cli --locked --version 1.47.2
 
       - name: Typos
         run: typos
@@ -99,7 +101,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    if: github.event.action != 'edited'
     permissions:
       contents: read
     steps:
@@ -126,7 +127,6 @@ jobs:
   zizmor:
     name: zizmor
     runs-on: ubuntu-latest
-    if: github.event.action != 'edited'
     permissions:
       contents: read
       security-events: write # required for zizmor SARIF upload

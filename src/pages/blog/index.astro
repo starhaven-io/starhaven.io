@@ -1,9 +1,9 @@
 ---
-import { getCollection } from "astro:content";
-import Base from "../../layouts/Base.astro";
-import { formatLongDate } from "../../lib/date";
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { formatLongDate } from '../../lib/date';
 
-const posts = (await getCollection("blog")).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
 <Base title="Blog" description="Notes from starhaven.io.">

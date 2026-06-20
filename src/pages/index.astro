@@ -1,5 +1,5 @@
 ---
-import Base from "../layouts/Base.astro";
+import Base from '../layouts/Base.astro';
 
 interface Project {
   name: string;
@@ -11,41 +11,41 @@ interface Project {
 
 const projects: Project[] = [
   {
-    name: "Brewy",
+    name: 'Brewy',
     tagline:
-      "A native macOS GUI for Homebrew. Browse, search, install, and update formulae and casks without opening your terminal.",
-    install: "brew install brewy",
-    repo: "https://github.com/starhaven-io/Brewy",
+      'A native macOS GUI for Homebrew. Browse, search, install, and update formulae and casks without opening your terminal.',
+    install: 'brew install brewy',
+    repo: 'https://github.com/starhaven-io/Brewy',
   },
   {
-    name: "macOSdb",
+    name: 'macOSdb',
     tagline:
-      "A catalog of which versions of open-source components ship with each macOS and Xcode release. Includes curl, OpenSSH, LibreSSL, Swift, Apple Clang, and more.",
-    install: "brew install starhaven-io/tap/macosdb",
-    repo: "https://github.com/starhaven-io/macOSdb",
-    site: "https://macosdb.com",
+      'A catalog of which versions of open-source components ship with each macOS and Xcode release. Includes curl, OpenSSH, LibreSSL, Swift, Apple Clang, and more.',
+    install: 'brew install starhaven-io/tap/macosdb',
+    repo: 'https://github.com/starhaven-io/macOSdb',
+    site: 'https://macosdb.com',
   },
   {
-    name: "midden",
+    name: 'midden',
     tagline:
       "A CLI that resolves, audits, and garbage-collects the state Claude Code accumulates. Surfaces what's actually active for a given directory with provenance, flags what's stale, and prunes what nothing else cleans up.",
-    install: "brew install starhaven-io/tap/midden",
-    repo: "https://github.com/starhaven-io/midden",
+    install: 'brew install starhaven-io/tap/midden',
+    repo: 'https://github.com/starhaven-io/midden',
   },
   {
-    name: "pinprick",
+    name: 'pinprick',
     tagline:
-      "Supply-chain security for GitHub Actions. Pins action references to full SHAs and audits pinned actions for runtime fetches that bypass pinning.",
-    install: "brew install starhaven-io/tap/pinprick",
-    repo: "https://github.com/starhaven-io/pinprick",
-    site: "https://pinprick.rs",
+      'Supply-chain security for GitHub Actions. Pins action references to full SHAs and audits pinned actions for runtime fetches that bypass pinning.',
+    install: 'brew install starhaven-io/tap/pinprick',
+    repo: 'https://github.com/starhaven-io/pinprick',
+    site: 'https://pinprick.rs',
   },
   {
-    name: "pkgstory",
+    name: 'pkgstory',
     tagline:
       "The version history of every Homebrew formula and cask — which version shipped, and when — mined from git history into a browsable timeline. Deprecations and removals are recorded with the date and Homebrew's own reason.",
-    repo: "https://github.com/starhaven-io/pkgstory",
-    site: "https://pkgstory.dev",
+    repo: 'https://github.com/starhaven-io/pkgstory',
+    site: 'https://pkgstory.dev',
   },
 ];
 ---
@@ -74,7 +74,7 @@ const projects: Project[] = [
               </a>
               {project.site && (
                 <>
-                  {" · "}
+                  {' · '}
                   <a href={project.site} rel="noopener">
                     Website
                   </a>

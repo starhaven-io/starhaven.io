@@ -12,6 +12,11 @@ concurrency:
   group: deploy-site
   cancel-in-progress: true
 
+defaults:
+  run:
+    # No -x: this job handles secrets; xtrace would echo them into the log.
+    shell: bash -euo pipefail {0}
+
 jobs:
   deploy:
     name: Deploy
