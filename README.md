@@ -9,7 +9,7 @@ The website for [starhaven.io](https://starhaven.io).
 ## Development
 
 ```bash
-npm install
+npm ci --strict-allow-scripts
 npm run dev
 ```
 

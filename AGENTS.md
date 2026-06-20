@@ -4,12 +4,14 @@ Run `just check` before committing or opening a PR. It is the closest local matc
 to CI and covers typo checks, GitHub Actions auditing, formatting, and the Astro
 build when the required tools are installed.
 
+## Project overview
+
 This is an Astro 6 site deployed to Cloudflare Workers. It is the landing page
 for the starhaven.io organization and its projects, plus a blog. Keep changes
 small, readable, and consistent with the existing hand-written CSS and content
 model.
 
-## Required Commands
+## Required checks
 
 - Use `npm ci --strict-allow-scripts` for clean dependency installs. The repo
   uses npm's reviewed install-script allowlist in `package.json`.
@@ -24,7 +26,7 @@ model.
 - Run `just install-hooks` once per clone to enable the DCO commit-msg hook and
   the pre-push `just check` hook.
 
-## Repository Structure
+## Repository structure
 
 - `astro.config.mjs`: Astro, Cloudflare, sitemap, and Markdown configuration.
 - `src/content.config.ts`: Blog collection schema.
@@ -39,7 +41,7 @@ model.
 - `wrangler.jsonc`: Cloudflare Workers configuration.
 - `.github/workflows/`: CI, deploy, link checking, and pinprick audit workflows.
 
-## Development Guidelines
+## Safety / do-not-touch rules
 
 1. Prefer Astro's static/prerendered model unless a feature truly needs runtime
    Worker behavior.
@@ -60,7 +62,7 @@ model.
 9. Update `README.md` when setup, verification, deployment, or project behavior
    changes.
 
-## Commit and PR Conventions
+## Commit and PR conventions
 
 - Never commit directly to `main`; create a feature branch and open a PR.
 - Commit messages and PR titles must use Conventional Commits:
