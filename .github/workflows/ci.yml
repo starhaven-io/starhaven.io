@@ -140,9 +140,31 @@ jobs:
         with:
           persona: auditor
 
+  codeql:
+    name: CodeQL
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      security-events: write # required to upload SARIF results
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          languages: javascript-typescript
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          category: "/language:javascript-typescript"
+
   conclusion:
     name: conclusion
-    needs: [commits, lint, build, zizmor]
+    needs: [commits, lint, build, zizmor, codeql]
     runs-on: ubuntu-24.04
     if: always()
     steps:
@@ -152,8 +174,9 @@ jobs:
           LINT_RESULT: ${{ needs.lint.result }}
           BUILD_RESULT: ${{ needs.build.result }}
           ZIZMOR_RESULT: ${{ needs.zizmor.result }}
+          CODEQL_RESULT: ${{ needs.codeql.result }}
         run: |
-          for RESULT in "${COMMITS_RESULT}" "${LINT_RESULT}" "${BUILD_RESULT}" "${ZIZMOR_RESULT}"; do
+          for RESULT in "${COMMITS_RESULT}" "${LINT_RESULT}" "${BUILD_RESULT}" "${ZIZMOR_RESULT}" "${CODEQL_RESULT}"; do
             if [[ "${RESULT}" != "success" && "${RESULT}" != "skipped" ]]; then
               echo "::error::One or more checks failed."
               exit 1
