@@ -1,4 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="8" fill="#4338ca" />
-  <circle cx="16" cy="16" r="4" fill="#fafafa" />
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#241046"/><stop offset="1" stop-color="#130725"/>
+    </linearGradient>
+    <linearGradient id="cre" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8a5bff"/><stop offset="1" stop-color="#5a2fd4"/>
+    </linearGradient>
+    <linearGradient id="star" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fef1d4"/><stop offset="1" stop-color="#f3d79c"/>
+    </linearGradient>
+    <mask id="cm"><rect width="32" height="32" fill="white"/><circle cx="16" cy="18.4" r="10.5" fill="black"/></mask>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#bg)"/>
+  <circle cx="16" cy="21.4" r="10.5" fill="url(#cre)" mask="url(#cm)"/>
+  <path d="M 16.00,3.40 L 17.80,10.26 L 23.92,6.68 L 20.34,12.80 L 27.20,14.60 L 20.34,16.40 L 23.92,22.52 L 17.80,18.94 L 16.00,25.80 L 14.20,18.94 L 8.08,22.52 L 11.66,16.40 L 4.80,14.60 L 11.66,12.80 L 8.08,6.68 L 14.20,10.26 Z" fill="url(#star)"/>
+  <circle cx="16" cy="3.7" r="1.15" fill="#f6662e"/>
 </svg>
