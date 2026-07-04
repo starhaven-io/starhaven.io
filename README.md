@@ -15,9 +15,18 @@ npm run dev
 
 Run `just install-hooks` once per clone to enable the git hooks (a pre-push `just check` and DCO sign-off enforcement).
 
+For local verification, run `just check`. It runs typos, zizmor, `npm run format:check`, `npm run check`,
+`npm run build`, and `npm run deploy:dry`. Install the optional local tools with:
+
+```bash
+brew install just typos-cli zizmor lychee
+```
+
+`lychee` is used by the separate `just lychee` link-check recipe.
+
 ## Deploy
 
-Pushes to `main` that touch this tree deploy to Cloudflare Workers via the `deploy-site` workflow.
+Pushes to `main` deploy to Cloudflare Workers via the `deploy-site` workflow.
 
 ## License
 

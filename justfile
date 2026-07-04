@@ -68,8 +68,12 @@ check:
     fi
     echo "--- format-check ---"
     npm run format:check || failed=1
+    echo "--- check ---"
+    npm run check || failed=1
     echo "--- build ---"
     npm run build || failed=1
+    echo "--- deploy-dry ---"
+    WRANGLER_SEND_METRICS=false npm run deploy:dry || failed=1
     if [ ${#skipped[@]} -gt 0 ]; then
         echo ""
         echo "Checks skipped due to missing tools:"
