@@ -12,12 +12,19 @@ function loadBlogPostLastmods() {
   for (const file of readdirSync(BLOG_DIR)) {
     if (!/\.(md|mdx)$/.test(file)) continue;
     const slug = file.replace(/\.(md|mdx)$/, '');
+    // Astro config runs before content collections, so this intentionally mirrors the blog schema.
     const fm = readFileSync(join(BLOG_DIR, file), 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---/);
     if (!fm) continue;
     const pub = fm[1].match(/^pubDate:\s*['"]?([^'"\n]+?)['"]?\s*$/m)?.[1];
     const updated = fm[1].match(/^updatedDate:\s*['"]?([^'"\n]+?)['"]?\s*$/m)?.[1];
     const date = updated ?? pub;
-    if (date) lastmods.set(`/blog/${slug}/`, new Date(date).toISOString());
+    if (!date) continue;
+    const parsed = new Date(date);
+    if (Number.isNaN(parsed.valueOf())) {
+      console.warn(`[sitemap] Skipping invalid frontmatter date in ${file}: ${date}`);
+      continue;
+    }
+    lastmods.set(`/blog/${slug}/`, parsed.toISOString());
   }
   return lastmods;
 }
