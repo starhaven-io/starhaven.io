@@ -7,6 +7,7 @@
   "assets": {
     "binding": "ASSETS",
     "directory": "./dist/client",
+    "not_found_handling": "404-page",
   },
   // Astro sessions KV: pin the id so wrangler reuses the namespace instead of re-creating it each deploy.
   "kv_namespaces": [{ "binding": "SESSION", "id": "42e050cd906e40309f43ab5a34bcbb27" }],
