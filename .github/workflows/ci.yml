@@ -100,6 +100,9 @@ jobs:
       - name: Prettier check
         run: npm run format:check
 
+      - name: Astro check
+        run: npm run check
+
   build:
     name: Build
     runs-on: ubuntu-24.04

@@ -1,12 +1,13 @@
 # Agent Instructions for starhaven.io
 
 Run `just check` before committing or opening a PR. It is the closest local match
-to CI and covers typo checks, GitHub Actions auditing, formatting, and the Astro
-build when the required tools are installed.
+to CI and covers typo checks, GitHub Actions auditing, formatting, Astro type
+checking, the Astro build, and Wrangler dry-run deploy validation when the
+required tools are installed.
 
 ## Project overview
 
-This is an Astro 6 site deployed to Cloudflare Workers. It is the landing page
+This is an Astro 7 site deployed to Cloudflare Workers. It is the landing page
 for the starhaven.io organization and its projects, plus a blog. Keep changes
 small, readable, and consistent with the existing hand-written CSS and content
 model.
@@ -17,6 +18,7 @@ model.
   uses npm's reviewed install-script allowlist in `package.json`.
 - Use `npm run dev` for local development.
 - Use `npm run build` to build the Astro site.
+- Use `npm run check` to type-check Astro and TypeScript sources.
 - Use `npm run deploy:dry` to verify Wrangler deployment output without
   publishing.
 - Use `npm run format:check` to check formatting and `npm run format` to apply
