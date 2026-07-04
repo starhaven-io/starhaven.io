@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import { SITE_TITLE } from '../consts';
 
 interface Project {
   name: string;
@@ -50,7 +51,7 @@ const projects: Project[] = [
 ];
 ---
 
-<Base title="starhaven.io">
+<Base title={SITE_TITLE}>
   <section class="intro">
     <h1>Hi, I'm Patrick.</h1>
     <p class="lede">

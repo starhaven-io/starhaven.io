@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { ClientRouter } from 'astro:transitions';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
 interface Props {
   title: string;
@@ -8,13 +9,11 @@ interface Props {
   ogImage?: string;
 }
 
-const defaultDescription = 'Open-source tools and notes by Patrick Linnane.';
-
-const { title, description = defaultDescription, ogImage } = Astro.props;
+const { title, description = SITE_DESCRIPTION, ogImage } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = ogImage ? new URL(ogImage, Astro.site).toString() : undefined;
-const fullTitle = title === 'starhaven.io' ? title : `${title} — starhaven.io`;
+const fullTitle = title === SITE_TITLE ? title : `${title} — ${SITE_TITLE}`;
 const currentYear = new Date().getFullYear();
 ---
 
@@ -27,7 +26,7 @@ const currentYear = new Date().getFullYear();
     <link rel="canonical" href={canonicalURL} />
 
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="starhaven.io" />
+    <meta property="og:site_name" content={SITE_TITLE} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
@@ -41,7 +40,7 @@ const currentYear = new Date().getFullYear();
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <link rel="alternate" type="application/rss+xml" title="starhaven.io" href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title={SITE_TITLE} href="/rss.xml" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
@@ -56,7 +55,7 @@ const currentYear = new Date().getFullYear();
     <header class="site-header">
       <div class="container">
         <nav aria-label="Main navigation">
-          <a href="/" class="site-title">starhaven.io</a>
+          <a href="/" class="site-title">{SITE_TITLE}</a>
           <div class="nav-links">
             <a href="/blog/">Blog</a>
             <a href="https://github.com/starhaven-io" rel="noopener">GitHub</a>
