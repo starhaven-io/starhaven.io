@@ -24,6 +24,7 @@ jobs:
     name: Conventional Commits
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       contents: read
       pull-requests: read # required to fetch PR commits for conventional commit validation
@@ -76,6 +77,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
@@ -92,7 +94,7 @@ jobs:
         run: npm ci --strict-allow-scripts
 
       - name: Install typos-cli
-        run: cargo install typos-cli --locked --version 1.47.2
+        run: cargo install typos-cli --locked --version 1.48.0
 
       - name: Typos
         run: typos
@@ -106,6 +108,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:
@@ -132,6 +135,7 @@ jobs:
   zizmor:
     name: zizmor
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       contents: read
       security-events: write # required for zizmor SARIF upload
@@ -149,6 +153,7 @@ jobs:
     name: CodeQL
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     permissions:
       contents: read
       security-events: write # required to upload SARIF results
@@ -171,6 +176,7 @@ jobs:
     name: conclusion
     needs: [commits, lint, build, zizmor, codeql]
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     if: always()
     steps:
       - name: Result
