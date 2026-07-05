@@ -23,56 +23,10 @@ jobs:
   commits:
     name: Conventional Commits
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
     permissions:
       contents: read
-      pull-requests: read # required to fetch PR commits for conventional commit validation
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Check PR title
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          PATTERN='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)(\(.+\))?: .+'
-          if [[ ! "${PR_TITLE}" =~ ${PATTERN} ]]; then
-            echo "::error::PR title '${PR_TITLE}' does not follow Conventional Commits."
-            echo ""
-            echo "Expected format: <type>(<scope>): <description>"
-            echo ""
-            echo "Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore"
-            exit 1
-          fi
-
-      - name: Check commit messages
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          PATTERN='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)(\(.+\))?: .+'
-          FAILED=0
-          while IFS= read -r LINE; do
-            SHA="${LINE%% *}"
-            MSG="${LINE#* }"
-            if [[ "${MSG}" == Merge\ * ]]; then
-              continue
-            fi
-            if [[ ! "${MSG}" =~ ${PATTERN} ]]; then
-              echo "::error::Commit ${SHA} does not follow Conventional Commits: '${MSG}'"
-              FAILED=1
-            fi
-          done < <(git log --format="%h %s" "${BASE_SHA}..${HEAD_SHA}")
-
-          if [[ "${FAILED}" -eq 1 ]]; then
-            echo ""
-            echo "All commit messages must follow: <type>(<scope>): <description>"
-            echo "Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore"
-            exit 1
-          fi
+      pull-requests: read # required to read PR titles
+    uses: starhaven-io/.github/.github/workflows/reusable-conventional-commits.yml@497c741e3457eddfe696cb604b1d1c283ef82b90 # v2026.07.05.5
 
   lint:
     name: Lint
