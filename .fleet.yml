@@ -10,7 +10,7 @@ params:
       group: "npm-dependencies"
       directory: "/"
   link-check:
-    targets: "--config lychee.toml --root-dir ${{ github.workspace }}/dist/client './dist/client/**/*.html' README.md"
+    targets: "--config lychee.toml --root-dir dist/client './dist/client/**/*.html' README.md"
     build-site: true
     authenticated-github: false
     schedule: "0 14 * * 1"
