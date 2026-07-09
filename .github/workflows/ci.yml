@@ -88,43 +88,24 @@ jobs:
 
   zizmor:
     name: zizmor
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
     permissions:
       contents: read
       security-events: write # required for zizmor SARIF upload
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-
-      - name: Run zizmor
-        uses: zizmorcore/zizmor-action@192e21d79ab29983730a13d1382995c2307fbcaa # v0.5.7
-        with:
-          persona: auditor
+    uses: starhaven-io/.github/.github/workflows/reusable-zizmor.yml@03a3794cb337d13703059eb02b44a8d419833ebd # v2026.07.08.1
 
   codeql:
     name: CodeQL
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-24.04
-    timeout-minutes: 30
     permissions:
       contents: read
       security-events: write # required to upload SARIF results
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a # v4.36.3
-        with:
-          languages: javascript-typescript
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a # v4.36.3
-        with:
-          category: "/language:javascript-typescript"
+    uses: starhaven-io/.github/.github/workflows/reusable-codeql.yml@03a3794cb337d13703059eb02b44a8d419833ebd # v2026.07.08.1
+    with:
+      languages: '["javascript-typescript"]'
+      runner: "ubuntu-24.04"
+      timeout-minutes: 30
+      build-mode: ""
+      build-profile: ""
 
   conclusion:
     name: conclusion
