@@ -14,5 +14,4 @@ investigate it, and coordinate disclosure with you.
 ## Supported versions
 
 starhaven.io is continuously deployed. Security fixes are applied to the current
-deployment and the latest source on the default branch; older revisions are not
-supported.
+deployment; older revisions are not supported.
