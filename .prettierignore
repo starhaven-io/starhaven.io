@@ -1,0 +1,2 @@
+# Fleet-managed; the hub owns its formatting, which is not this repo's Prettier style.
+scripts/check-npm-install-policy.mjs
