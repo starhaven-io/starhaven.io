@@ -17,6 +17,10 @@ npm ci --strict-allow-scripts
 npm run dev
 ```
 
+The project explicitly denies its current dependency install scripts. `just
+npm-policy` verifies the lockfile policy; clean installs fail if a new
+script-bearing dependency has not been reviewed.
+
 Run `just install-hooks` once per clone to enable the git hooks (a pre-push `just check` and DCO sign-off enforcement).
 
 For local verification, run `just check`. It runs typos, zizmor, `npm run format:check`, `npm run check`,

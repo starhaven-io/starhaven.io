@@ -15,7 +15,9 @@ model.
 ## Required checks
 
 - Use `npm ci --strict-allow-scripts` for clean dependency installs. The repo
-  uses npm's reviewed install-script allowlist in `package.json`.
+  denies its current dependency install scripts and requires exact-version
+  approvals for any exception.
+- Run `just npm-policy` after dependency changes.
 - Use `npm run dev` for local development.
 - Use `npm run build` to build the Astro site.
 - Use `npm run check` to type-check Astro and TypeScript sources.
