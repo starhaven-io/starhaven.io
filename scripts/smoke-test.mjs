@@ -16,6 +16,14 @@ function decodeXmlEntities(value) {
   return value.replace(/&(amp|lt|gt|quot|apos);/g, (_, entity) => entities[entity]);
 }
 
+// Astro's compressHTML deletes the whitespace between a text node and an adjacent tag, so the
+// layout has to spell these separators out; nothing else in the build fails when they disappear.
+function footerMarkup(html, name) {
+  const footer = html.match(/<footer class="site-footer">([\s\S]*?)<\/footer>/);
+  assert.ok(footer, `${name}: missing site footer`);
+  return footer[1];
+}
+
 const websitePages = [
   ['home', read('index.html').toString()],
   ['404', read('404.html').toString()],
@@ -43,6 +51,18 @@ for (const [name, html] of [...websitePages, ...postPages]) {
     html,
     /<script type="module" src="\/_astro\/ClientRouter[^"]+\.js"><\/script>/,
     `${name}: expected ClientRouter module compatible with script-src 'self'`,
+  );
+
+  const footer = footerMarkup(html, name);
+  assert.match(
+    footer,
+    />Blog<\/a> · <a [^>]*>GitHub<\/a> · <a [^>]*>Mastodon<\/a> · <a [^>]*>RSS<\/a>/,
+    `${name}: footer nav lost its separators`,
+  );
+  assert.match(
+    footer,
+    /Prose licensed under <a [^>]*>CC BY-SA 4\.0<\/a>\. Code licensed under <a [^>]*>AGPL-3\.0-only<\/a>\./,
+    `${name}: footer license text lost its spacing`,
   );
 }
 
@@ -72,4 +92,4 @@ assert.ok(ogImage.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0
 assert.equal(ogImage.readUInt32BE(16), 1200);
 assert.equal(ogImage.readUInt32BE(20), 630);
 
-console.log('smoke: build output preserves metadata, transitions, RSS safety, and OG image dimensions');
+console.log('smoke: build output preserves metadata, transitions, footer spacing, RSS safety, and OG image dimensions');
