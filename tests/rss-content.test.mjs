@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { renderPostContent } from '../src/lib/rss-content.ts';
+import { assertSupportedFeedMarkdown, renderPostContent } from '../src/lib/rss-content.ts';
 
 const SITE = 'https://starhaven.io';
+const POST = new URL('/blog/current/', SITE);
 
 describe('renderPostContent', () => {
   it('handles a missing body', () => {
@@ -30,15 +31,36 @@ describe('renderPostContent', () => {
     assert.ok(out.includes('<img src="https://starhaven.io/img/pic.png" alt="alt" />'));
   });
 
-  it('accepts a URL object site base', () => {
-    const out = renderPostContent('[x](/y/)', new URL('https://starhaven.io'));
-    assert.ok(out.includes('href="https://starhaven.io/y/"'));
+  it('resolves fragment and document-relative links against the post URL', () => {
+    const out = renderPostContent('[jump](#heading) [child](other/)', POST);
+    assert.ok(out.includes('href="https://starhaven.io/blog/current/#heading"'));
+    assert.ok(out.includes('href="https://starhaven.io/blog/current/other/"'));
   });
 
   it('leaves absolute URLs alone', () => {
     const out = renderPostContent('[ext](https://example.com/a) ![i](https://example.com/i.png)', SITE);
     assert.ok(out.includes('href="https://example.com/a"'));
     assert.ok(out.includes('src="https://example.com/i.png"'));
+  });
+
+  it('rejects unsupported footnotes without rejecting examples in code fences', () => {
+    assert.throws(
+      () => renderPostContent('text[^1]\n\n[^1]: a note with multiple words', POST),
+      /RSS rendering does not support footnotes in https:\/\/starhaven\.io\/blog\/current\//,
+    );
+    assert.match(renderPostContent('~~~md\n[^1]: example\n~~~', POST), /\[\^1\]: example/);
+  });
+
+  it('includes the source file name when rejecting a post body', () => {
+    assert.throws(
+      () => assertSupportedFeedMarkdown('text[^1]\n\n[^1]: note', 'example.md'),
+      /RSS rendering does not support footnotes in example\.md/,
+    );
+    assert.doesNotThrow(() => assertSupportedFeedMarkdown('~~~md\n[^1]: example\n~~~', 'example.md'));
+  });
+
+  it('drops images whose source scheme is not allowed', () => {
+    assert.equal(renderPostContent('![x](data:image/png;base64,iVBORw0KGgo=)', POST), '<p></p>\n');
   });
 
   it('renders a representative document stably', () => {

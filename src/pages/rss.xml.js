@@ -16,13 +16,21 @@ export async function GET(context) {
     xmlns: {
       atom: 'http://www.w3.org/2005/Atom',
     },
-    items: posts.map((post) => ({
-      title: post.data.title,
-      pubDate: post.data.pubDate,
-      description: post.data.description,
-      link: `/blog/${post.id}/`,
-      content: renderPostContent(post.body, site),
-    })),
+    items: posts.map((post) => {
+      const link = `/blog/${post.id}/`;
+      try {
+        return {
+          title: post.data.title,
+          pubDate: post.data.pubDate,
+          description: post.data.description,
+          link,
+          content: renderPostContent(post.body, new URL(link, site)),
+        };
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        throw new Error(`Failed to render RSS content for ${post.id}: ${detail}`, { cause: error });
+      }
+    }),
     customData: `<language>en-us</language><atom:link href="${RSS_URL}" rel="self" type="application/rss+xml" />`,
   });
 }
