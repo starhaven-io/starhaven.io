@@ -62,6 +62,9 @@ jobs:
       - name: Astro check
         run: npm run check
 
+      - name: Unit tests
+        run: npm test
+
   build:
     name: Build
     runs-on: ubuntu-24.04
@@ -86,6 +89,15 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Smoke test
+        run: npm run test:smoke
+
+      - name: Check internal links
+        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
+        with:
+          args: "--offline --config lychee.toml --root-dir dist/client 'dist/client/**/*.html' README.md"
+          fail: true
 
       - name: Deploy dry-run
         run: npm run deploy:dry

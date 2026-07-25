@@ -21,7 +21,8 @@ model.
 - Use `npm run dev` for local development.
 - Use `npm run build` to build the Astro site.
 - Use `npm run check` to type-check Astro and TypeScript sources.
-- Use `npm test` to run the unit tests.
+- Use `npm test` to run the unit tests and `npm run test:smoke` for
+  post-build assertions on `dist/client`.
 - Use `npm run deploy:dry` to verify Wrangler deployment output without
   publishing.
 - Use `npm run format:check` to check formatting and `npm run format` to apply
