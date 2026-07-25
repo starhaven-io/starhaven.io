@@ -21,6 +21,7 @@ model.
 - Use `npm run dev` for local development.
 - Use `npm run build` to build the Astro site.
 - Use `npm run check` to type-check Astro and TypeScript sources.
+- Use `npm test` to run the unit tests.
 - Use `npm run deploy:dry` to verify Wrangler deployment output without
   publishing.
 - Use `npm run format:check` to check formatting and `npm run format` to apply
@@ -58,7 +59,10 @@ model.
 4. Preserve security headers, metadata, canonical URLs, RSS, and sitemap behavior
    when changing layout, routing, or Markdown handling.
 5. Treat Markdown/blog rendering as a security-sensitive path. Avoid raw HTML
-   expansion unless it is sanitized and covered by build-time checks.
+   expansion unless it is sanitized and covered by build-time checks. RSS uses
+   a separate `markdown-it` and `sanitize-html` pipeline in
+   `src/lib/rss-content.ts`; `tests/rss-content.test.mjs` pins its output so
+   renderer divergence is reviewed explicitly.
 6. Keep dependency changes conservative. Prefer existing Astro, Cloudflare, and
    npm tooling over adding new frameworks or build layers.
 7. Do not edit generated build output under `dist/`.
