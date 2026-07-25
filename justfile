@@ -45,6 +45,16 @@ typos:
 lychee: build
     lychee --config lychee.toml --root-dir "$(pwd)/dist/client" 'dist/client/**/*.html' README.md
 
+# Test
+
+# Run unit tests
+test:
+    npm test
+
+# Run post-build assertions on dist/client
+smoke: build
+    npm run test:smoke
+
 # Check
 
 # Run all checks
@@ -78,8 +88,12 @@ check:
     npm run format:check || failed=1
     echo "--- check ---"
     npm run check || failed=1
+    echo "--- test ---"
+    npm test || failed=1
     echo "--- build ---"
     npm run build || failed=1
+    echo "--- smoke ---"
+    npm run test:smoke || failed=1
     echo "--- deploy-dry ---"
     WRANGLER_SEND_METRICS=false npm run deploy:dry || failed=1
     if [ ${#skipped[@]} -gt 0 ]; then

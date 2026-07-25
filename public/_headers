@@ -1,4 +1,6 @@
 # HSTS is managed by the Cloudflare zone setting so production has one source of truth.
+# style-src keeps 'unsafe-inline' because Astro inlines the global stylesheet
+# and Shiki code blocks use inline style attributes.
 /*
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff

@@ -23,8 +23,9 @@ script-bearing dependency has not been reviewed.
 
 Run `just install-hooks` once per clone to enable the git hooks (a pre-push `just check` and DCO sign-off enforcement).
 
-For local verification, run `just check`. It runs typos, zizmor, `npm run format:check`, `npm run check`,
-`npm run build`, and `npm run deploy:dry`. Install the optional local tools with:
+For local verification, run `just check`. It runs typos, zizmor, formatting,
+type checks, unit tests, a production build, post-build smoke assertions, and a
+Wrangler dry-run. Install the optional local tools with:
 
 ```bash
 brew install just typos-cli zizmor lychee
