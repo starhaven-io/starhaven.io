@@ -41,7 +41,8 @@ model.
 - `src/pages/blog/`: Blog listing and post routes.
 - `src/pages/rss.xml.js`: RSS feed.
 - `src/styles/global.css`: Theme tokens, resets, and shared styles.
-- `public/`: Static assets, including favicon and Open Graph image.
+- `public/`: Static assets, including the favicons and the default Open Graph
+  image (`og.png`, 1200x630).
 - `wrangler.jsonc`: Cloudflare Workers configuration.
 - `.github/workflows/`: CI, deploy, link checking, and pinprick audit workflows.
 
