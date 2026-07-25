@@ -62,7 +62,8 @@ model.
    expansion unless it is sanitized and covered by build-time checks. RSS uses
    a separate `markdown-it` and `sanitize-html` pipeline in
    `src/lib/rss-content.ts`; `tests/rss-content.test.mjs` pins its output so
-   renderer divergence is reviewed explicitly.
+   renderer divergence is reviewed explicitly. Footnotes fail the build until
+   the feed renderer supports equivalent output.
 6. Keep dependency changes conservative. Prefer existing Astro, Cloudflare, and
    npm tooling over adding new frameworks or build layers.
 7. Do not edit generated build output under `dist/`.
