@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import { parseBlogPostId } from '../../lib/blog';
 import { formatLongDate } from '../../lib/date';
 
 export async function getStaticPaths() {
@@ -13,18 +14,19 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await render(post);
+const pubDate = parseBlogPostId(post.id).date;
 ---
 
 <Base
   title={post.data.title}
   description={post.data.description}
-  article={{ publishedTime: post.data.pubDate, modifiedTime: post.data.updatedDate }}
+  article={{ publishedTime: pubDate, modifiedTime: post.data.updatedDate }}
 >
   <article class="post">
     <header class="post-header">
       <h1>{post.data.title}</h1>
-      <time datetime={post.data.pubDate.toISOString()}>
-        {formatLongDate(post.data.pubDate)}
+      <time datetime={pubDate.toISOString()}>
+        {formatLongDate(pubDate)}
       </time>
       {
         post.data.updatedDate && (

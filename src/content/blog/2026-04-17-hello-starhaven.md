@@ -1,7 +1,6 @@
 ---
 title: 'Hello from starhaven.io'
 description: 'A welcome note, the projects in flight, and what the blog will be for.'
-pubDate: 2026-04-17
 ---
 
 Hi, I'm Patrick. I've been wanting a place for my projects and the occasional write-up that isn't a social-media account. This is that.
