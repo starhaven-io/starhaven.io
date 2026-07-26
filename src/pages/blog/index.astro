@@ -1,9 +1,13 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import { parseBlogPostId, sortBlogPosts } from '../../lib/blog';
 import { formatLongDate } from '../../lib/date';
 
-const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const posts = sortBlogPosts(await getCollection('blog')).map((post) => ({
+  post,
+  pubDate: parseBlogPostId(post.id).date,
+}));
 ---
 
 <Base title="Blog" description="Notes from starhaven.io.">
@@ -14,11 +18,11 @@ const posts = (await getCollection('blog')).sort((a, b) => b.data.pubDate.valueO
         <p>Nothing here yet.</p>
       ) : (
         <ul class="post-list">
-          {posts.map((post) => (
+          {posts.map(({ post, pubDate }) => (
             <li>
               <a href={`/blog/${post.id}/`}>
                 <h2>{post.data.title}</h2>
-                <time datetime={post.data.pubDate.toISOString()}>{formatLongDate(post.data.pubDate)}</time>
+                <time datetime={pubDate.toISOString()}>{formatLongDate(pubDate)}</time>
                 <p>{post.data.description}</p>
               </a>
             </li>

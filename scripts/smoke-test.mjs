@@ -36,6 +36,9 @@ const postPages = readdirSync(blogDirectory, { withFileTypes: true })
   .map((entry) => [entry.name, read(path.join('blog', entry.name, 'index.html')).toString()])
   .sort(([left], [right]) => left.localeCompare(right));
 assert.ok(postPages.length > 0, 'missing a built blog post');
+for (const [name] of postPages) {
+  assert.match(name, /^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*$/, `${name}: invalid blog post route`);
+}
 
 for (const [name, html] of [...websitePages, ...postPages]) {
   assert.match(html, /<link rel="canonical" href="https:\/\/starhaven\.io\//, `${name}: missing canonical URL`);
@@ -78,6 +81,18 @@ const headers = read('_headers').toString();
 assert.match(headers, /Content-Security-Policy:.*script-src 'self'/);
 assert.doesNotMatch(headers, /script-src 'none'/);
 
+const redirects = read('_redirects').toString();
+assert.match(
+  redirects,
+  /^\/blog\/hello-starhaven\s+\/blog\/2026-04-17-hello-starhaven\/\s+301$/m,
+  'missing redirect from the original blog post URL without a trailing slash',
+);
+assert.match(
+  redirects,
+  /^\/blog\/hello-starhaven\/\s+\/blog\/2026-04-17-hello-starhaven\/\s+301$/m,
+  'missing redirect from the original blog post URL with a trailing slash',
+);
+
 const rss = read('rss.xml').toString();
 assert.match(rss, /<rss\b/);
 assert.doesNotMatch(rss, /<script\b/i);
@@ -85,6 +100,21 @@ assert.match(rss, /<content:encoded>/);
 const decodedRss = decodeXmlEntities(rss);
 for (const [, url] of decodedRss.matchAll(/<[a-z][^>]*\s(?:href|src)="([^"]*)"/gi)) {
   assert.match(url, /^(?:[a-z][a-z\d+.-]*:|\/\/)/i, `rss: unresolved feed-content URL: ${url}`);
+}
+
+const sitemap = read('sitemap-0.xml').toString();
+const sitemapEntries = [...sitemap.matchAll(/<url>([\s\S]*?)<\/url>/g)].map((match) => match[1]);
+for (const [name] of postPages) {
+  const absoluteUrl = `https://starhaven.io/blog/${name}/`;
+  assert.ok(rss.includes(`<link>${absoluteUrl}</link>`), `${name}: missing RSS link`);
+  assert.ok(
+    rss.includes(`<guid isPermaLink="true">${absoluteUrl}</guid>`),
+    `${name}: RSS GUID does not match its built route`,
+  );
+
+  const sitemapEntry = sitemapEntries.find((entry) => entry.includes(`<loc>${absoluteUrl}</loc>`));
+  assert.ok(sitemapEntry, `${name}: missing sitemap entry`);
+  assert.match(sitemapEntry, /<lastmod>[^<]+<\/lastmod>/, `${name}: sitemap entry is missing lastmod`);
 }
 
 const ogImage = read('og.png');

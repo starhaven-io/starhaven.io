@@ -33,6 +33,13 @@ brew install just typos-cli zizmor lychee
 
 `lychee` is used by the separate `just lychee` link-check recipe.
 
+## Blog posts
+
+Blog posts live in `src/content/blog/` and use `YYYY-MM-DD-slug.md` filenames.
+The filename supplies the publication date, determines chronological ordering,
+and forms the date-prefixed post URL, so do not add a separate `pubDate`
+frontmatter field.
+
 ## Deploy
 
 Pushes to `main` deploy to Cloudflare Workers via the `deploy-site` workflow.
