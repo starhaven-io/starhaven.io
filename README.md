@@ -45,8 +45,6 @@ frontmatter field.
 
 Pushes to `main` deploy to Cloudflare Workers via the `deploy-site` workflow.
 
-<!-- vale off -->
-
 <!-- fleet:block license-section -->
 
 ## License
@@ -58,5 +56,3 @@ Prose (blog posts and site copy) is licensed separately under [CC-BY-SA-4.0](htt
 Copyright (C) 2026 Patrick Linnane
 
 <!-- fleet:end -->
-
-<!-- vale on -->
