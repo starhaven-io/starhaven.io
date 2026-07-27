@@ -56,6 +56,22 @@ jobs:
       - name: Typos
         run: typos
 
+      - name: Install Vale
+        env:
+          VALE_SHA256: "fc72e64454d6bd7af91905d4faebbf411bae3eec17bb572f4101311212bc0d9e"
+          VALE_VERSION: "3.15.2"
+        run: |
+          archive="vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
+          curl --fail --location --proto '=https' --proto-redir '=https' \
+            --output "${RUNNER_TEMP}/${archive}" \
+            "https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/${archive}"
+          echo "${VALE_SHA256}  ${RUNNER_TEMP}/${archive}" | sha256sum --check -
+          tar --extract --gzip --file "${RUNNER_TEMP}/${archive}" --directory "${RUNNER_TEMP}" vale
+          echo "${RUNNER_TEMP}" >> "${GITHUB_PATH}"
+
+      - name: Vale
+        run: vale --no-global README.md src/content/blog
+
       - name: Prettier check
         run: npm run format:check
 

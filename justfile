@@ -41,6 +41,10 @@ format:
 typos:
     typos
 
+# Check prose style
+vale:
+    vale --no-global README.md src/content/blog
+
 # Check built site links
 lychee: build
     lychee --config lychee.toml --root-dir "$(pwd)/dist/client" 'dist/client/**/*.html' README.md
@@ -78,6 +82,11 @@ check:
         run typos
     else
         skip typos typos typos-cli
+    fi
+    if command -v vale &>/dev/null; then
+        run vale --no-global README.md src/content/blog
+    else
+        skip vale vale vale
     fi
     if command -v zizmor &>/dev/null; then
         run zizmor --persona auditor .github/workflows/

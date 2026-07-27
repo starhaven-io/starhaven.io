@@ -18,20 +18,21 @@ npm run dev
 ```
 
 The project explicitly denies its current dependency install scripts. `just
-npm-policy` verifies the lockfile policy; clean installs fail if a new
-script-bearing dependency has not been reviewed.
+npm-policy` verifies the lockfile policy; clean installs fail on any unreviewed
+script-bearing dependency.
 
 Run `just install-hooks` once per clone to enable the git hooks (a pre-push `just check` and DCO sign-off enforcement).
 
-For local verification, run `just check`. It runs typos, zizmor, formatting,
-type checks, unit tests, a production build, post-build smoke assertions, and a
-Wrangler dry-run. Install the optional local tools with:
+For local verification, run `just check`. It runs typos, Vale, zizmor,
+formatting, type checks, unit tests, a production build, post-build smoke
+assertions, and a Wrangler dry-run. Install the optional local tools with:
 
 ```bash
-brew install just typos-cli zizmor lychee
+brew install just typos-cli vale zizmor lychee
 ```
 
-`lychee` is used by the separate `just lychee` link-check recipe.
+Vale checks prose in `README.md` and `src/content/blog/`; the separate `just
+lychee` recipe checks links in the built site.
 
 ## Blog posts
 
@@ -44,6 +45,8 @@ frontmatter field.
 
 Pushes to `main` deploy to Cloudflare Workers via the `deploy-site` workflow.
 
+<!-- vale off -->
+
 <!-- fleet:block license-section -->
 
 ## License
@@ -55,3 +58,5 @@ Prose (blog posts and site copy) is licensed separately under [CC-BY-SA-4.0](htt
 Copyright (C) 2026 Patrick Linnane
 
 <!-- fleet:end -->
+
+<!-- vale on -->

@@ -1,0 +1,17 @@
+Astro
+Bazzite
+Bluefin
+Cloudflare
+CodeQL
+Dependabot
+Homebrew
+macOS
+macOSdb
+npm
+starhaven[.]io
+SwiftUI
+TypeScript
+winget
+Wrangler
+WSL
+zizmor
