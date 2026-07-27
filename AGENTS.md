@@ -27,8 +27,9 @@ model.
   publishing.
 - Use `npm run format:check` to check formatting and `npm run format` to apply
   Prettier.
-- Use `just check` before handing off changes. If `typos` or `zizmor` is not
-  installed, note the skipped local checks.
+- Use `just vale` to check prose in `README.md` and `src/content/blog/`.
+- Use `just check` before handing off changes. If `typos`, Vale, or `zizmor` is
+  not installed, note the skipped local checks.
 - Run `just install-hooks` once per clone to enable the DCO commit-msg hook and
   the pre-push `just check` hook.
 
