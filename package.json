@@ -19,10 +19,10 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^14.1.5",
+    "@astrojs/cloudflare": "^14.1.6",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
-    "astro": "^7.1.4",
+    "astro": "^7.1.5",
     "markdown-it": "^14.3.0",
     "sanitize-html": "^2.17.6"
   },
