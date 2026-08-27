@@ -58,8 +58,8 @@ jobs:
 
       - name: Install Vale
         env:
-          VALE_SHA256: "db947f89f2292e6a0381a61de155f6a5f5cb4cb460ca178ea412ef605559cefd"
-          VALE_VERSION: "3.17.1"
+          VALE_SHA256: "a6f71a75a12fe689345b754f2412b90367fe33648abb7d200fa19eaadc2dbf6d"
+          VALE_VERSION: "3.18.0"
         run: |
           archive="vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
           curl --fail --location --proto '=https' --proto-redir '=https' \
