@@ -19,10 +19,10 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^14.2.4",
+    "@astrojs/cloudflare": "^14.2.5",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
-    "astro": "^7.2.6",
+    "astro": "^7.2.7",
     "markdown-it": "^15.0.0",
     "sanitize-html": "^2.17.7"
   },
@@ -33,7 +33,7 @@
     "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",
     "typescript": "^6.0.3",
-    "wrangler": "4.125.0"
+    "wrangler": "4.126.0"
   },
   "allowScripts": {
     "esbuild": false,
