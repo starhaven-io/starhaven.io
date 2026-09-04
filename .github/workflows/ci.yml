@@ -51,7 +51,7 @@ jobs:
         run: npm ci --strict-allow-scripts
 
       - name: Install typos-cli
-        run: cargo install typos-cli --locked --version 1.49.0
+        run: cargo install typos-cli --locked --version 1.49.1
 
       - name: Typos
         run: typos
