@@ -12,8 +12,8 @@ The website for [starhaven.io](https://starhaven.io).
 
 ## Development
 
-Development requires Node.js 26 or newer. Install the dependencies exactly as
-locked, then start Astro:
+Use a Node.js version satisfying `engines.node` in `package.json`. Install the
+dependencies exactly as locked, then start Astro:
 
 ```bash
 npm ci --strict-allow-scripts

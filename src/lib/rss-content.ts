@@ -3,7 +3,7 @@ import sanitizeHtml from 'sanitize-html';
 import { isPlainTextMetadata } from './blog.ts';
 
 // Full-content RSS needs sanitized, self-contained HTML with absolute URLs, so
-// this intentionally differs from Astro's remark and Shiki rendering pipeline.
+// this intentionally differs from Astro's page rendering and highlighting pipeline.
 const parser = new MarkdownIt();
 
 type Attributes = Record<string, string>;
