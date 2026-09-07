@@ -7,7 +7,7 @@ required tools are installed.
 
 ## Project overview
 
-This is an Astro 7 site deployed to Cloudflare Workers. It is the landing page
+This is an Astro site deployed to Cloudflare Workers. It is the landing page
 for the starhaven.io organization and its projects, plus a blog. Keep changes
 small, readable, and consistent with the existing hand-written CSS and content
 model.

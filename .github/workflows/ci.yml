@@ -160,12 +160,16 @@ jobs:
           ZIZMOR_RESULT: ${{ needs.zizmor.result }}
           CODEQL_RESULT: ${{ needs.codeql.result }}
         run: |
-          for RESULT in "${LINT_RESULT}" "${BUILD_RESULT}" "${ZIZMOR_RESULT}" "${CODEQL_RESULT}"; do
-            if [[ "${RESULT}" != "success" && "${RESULT}" != "skipped" ]]; then
+          for RESULT in "${LINT_RESULT}" "${BUILD_RESULT}" "${ZIZMOR_RESULT}"; do
+            if [[ "${RESULT}" != "success" ]]; then
               echo "::error::One or more source checks failed."
               exit 1
             fi
           done
+          if [[ "${CODEQL_RESULT}" != "success" && ! ( "${GITHUB_EVENT_NAME}" == "push" && "${CODEQL_RESULT}" == "skipped" ) ]]; then
+            echo "::error::The required CodeQL check did not succeed."
+            exit 1
+          fi
 
   conclusion:
     # GitHub evaluates required contexts against the newest check suite on the head commit, so
@@ -182,7 +186,7 @@ jobs:
         env:
           COMMITS_RESULT: ${{ needs.commits.result }}
         run: |
-          if [[ "${COMMITS_RESULT}" != "success" && "${COMMITS_RESULT}" != "skipped" ]]; then
+          if [[ "${COMMITS_RESULT}" != "success" && ! ( "${GITHUB_EVENT_NAME}" == "push" && "${COMMITS_RESULT}" == "skipped" ) ]]; then
             echo "::error::The pull request title check failed."
             exit 1
           fi

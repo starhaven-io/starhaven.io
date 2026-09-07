@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { describe, it } from 'node:test';
+import { parse } from 'yaml';
 
 const workflow = readFileSync(new URL('../.github/workflows/ci.yml', import.meta.url), 'utf8');
 const sourceEditGuard =
@@ -13,6 +15,36 @@ function job(name, nextName) {
 }
 
 describe('CI workflow', () => {
+  it('requires every scheduled check to succeed, allowing only push-specific skips', () => {
+    const jobs = parse(workflow).jobs;
+    const sourceResult = jobs.source.steps.find((step) => step.name === 'Result').run;
+    const titleResult = jobs.conclusion.steps.find((step) => step.name === 'Require the pull request title check').run;
+    const run = (script, env) => spawnSync('bash', ['-euo', 'pipefail', '-c', script], { env }).status;
+    for (const event of ['push', 'pull_request']) {
+      const results = {
+        GITHUB_EVENT_NAME: event,
+        LINT_RESULT: 'success',
+        BUILD_RESULT: 'success',
+        ZIZMOR_RESULT: 'success',
+        CODEQL_RESULT: event === 'push' ? 'skipped' : 'success',
+      };
+      assert.equal(run(sourceResult, results), 0);
+      for (const check of ['LINT_RESULT', 'BUILD_RESULT', 'ZIZMOR_RESULT', 'CODEQL_RESULT']) {
+        for (const status of ['failure', 'cancelled', 'skipped', '']) {
+          if (check === 'CODEQL_RESULT' && event === 'push' && status === 'skipped') continue;
+          assert.notEqual(run(sourceResult, { ...results, [check]: status }), 0, `${event} ${check} ${status}`);
+        }
+      }
+      for (const status of ['success', 'skipped', 'failure', 'cancelled', '']) {
+        assert.equal(
+          run(titleResult, { GITHUB_EVENT_NAME: event, COMMITS_RESULT: status }) === 0,
+          status === 'success' || (event === 'push' && status === 'skipped'),
+          `${event} title ${status}`,
+        );
+      }
+    }
+  });
+
   it('coalesces metadata-only edits without cancelling or rerunning source checks', () => {
     assert.doesNotMatch(workflow, /github\.run_id/);
     assert.match(workflow, /format\('ci-edit-\{0\}', github\.event\.pull_request\.number\)/);
