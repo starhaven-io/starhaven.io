@@ -12,9 +12,9 @@ defaults:
     shell: bash -xeuo pipefail {0}
 
 concurrency:
-  # PR body/title edits fire `edited` events; give them their own per-run group so
-  # they can't cancel in-flight tests from the preceding `opened`/`synchronize` run.
-  group: ${{ github.event.action == 'edited' && format('ci-edit-{0}-{1}', github.ref, github.run_id) || format('ci-{0}', github.ref) }}
+  # Title/body-only edits neither cancel source checks nor need their own full gate.
+  # Base-branch edits still use the source-check group because they change the merge input.
+  group: ${{ github.event_name == 'pull_request' && github.event.action == 'edited' && github.event.changes.base.ref.from == '' && format('ci-edit-{0}', github.event.pull_request.number) || format('ci-{0}', github.ref) }}
   cancel-in-progress: true
 
 permissions: {}
@@ -30,6 +30,7 @@ jobs:
 
   lint:
     name: Lint
+    if: github.event_name != 'pull_request' || github.event.action != 'edited' || github.event.changes.base.ref.from != ''
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
@@ -83,6 +84,7 @@ jobs:
 
   build:
     name: Build
+    if: github.event_name != 'pull_request' || github.event.action != 'edited' || github.event.changes.base.ref.from != ''
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -122,6 +124,7 @@ jobs:
 
   zizmor:
     name: zizmor
+    if: github.event_name != 'pull_request' || github.event.action != 'edited' || github.event.changes.base.ref.from != ''
     permissions:
       contents: read
       security-events: write # required for zizmor SARIF upload
@@ -129,7 +132,7 @@ jobs:
 
   codeql:
     name: CodeQL
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && (github.event.action != 'edited' || github.event.changes.base.ref.from != '')
     permissions:
       contents: read
       security-events: write # required to upload SARIF results
@@ -141,24 +144,116 @@ jobs:
       build-mode: ""
       build-profile: ""
 
-  conclusion:
-    name: conclusion
-    needs: [commits, lint, build, zizmor, codeql]
+  source:
+    # Aggregates the source fan-out. Metadata-only edits skip it and `conclusion` mirrors the
+    # latest completed `source` check for the same head commit instead.
+    name: source
+    if: always() && (github.event_name != 'pull_request' || github.event.action != 'edited' || github.event.changes.base.ref.from != '')
+    needs: [lint, build, zizmor, codeql]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    if: always()
     steps:
       - name: Result
         env:
-          COMMITS_RESULT: ${{ needs.commits.result }}
           LINT_RESULT: ${{ needs.lint.result }}
           BUILD_RESULT: ${{ needs.build.result }}
           ZIZMOR_RESULT: ${{ needs.zizmor.result }}
           CODEQL_RESULT: ${{ needs.codeql.result }}
         run: |
-          for RESULT in "${COMMITS_RESULT}" "${LINT_RESULT}" "${BUILD_RESULT}" "${ZIZMOR_RESULT}" "${CODEQL_RESULT}"; do
+          for RESULT in "${LINT_RESULT}" "${BUILD_RESULT}" "${ZIZMOR_RESULT}" "${CODEQL_RESULT}"; do
             if [[ "${RESULT}" != "success" && "${RESULT}" != "skipped" ]]; then
-              echo "::error::One or more checks failed."
+              echo "::error::One or more source checks failed."
               exit 1
             fi
           done
+
+  conclusion:
+    # GitHub evaluates required contexts against the newest check suite on the head commit, so
+    # every run must emit `conclusion`, including a metadata-only edit that skips the fan-out.
+    name: conclusion
+    needs: [commits, source]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    if: always()
+    permissions:
+      checks: read # required to read the head commit's `source` check run on metadata-only edits
+    steps:
+      - name: Require the pull request title check
+        env:
+          COMMITS_RESULT: ${{ needs.commits.result }}
+        run: |
+          if [[ "${COMMITS_RESULT}" != "success" && "${COMMITS_RESULT}" != "skipped" ]]; then
+            echo "::error::The pull request title check failed."
+            exit 1
+          fi
+
+      - name: Require this run's source gate
+        if: github.event_name != 'pull_request' || github.event.action != 'edited' || github.event.changes.base.ref.from != ''
+        env:
+          SOURCE_RESULT: ${{ needs.source.result }}
+        run: |
+          if [[ "${SOURCE_RESULT}" != "success" ]]; then
+            echo "::error::The source gate did not succeed: ${SOURCE_RESULT}."
+            exit 1
+          fi
+
+      - name: Mirror the latest source gate for a metadata-only edit
+        if: github.event_name == 'pull_request' && github.event.action == 'edited' && github.event.changes.base.ref.from == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          for _ in $(seq 1 50); do
+            SOURCE_STATE="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}/check-runs?check_name=source&per_page=100" \
+              --jq '[.check_runs[] | select(.app.slug == "github-actions" and .conclusion != "skipped"
+                  and (.details_url | contains("/runs/\(env.GITHUB_RUN_ID)/") | not))] | sort_by(.started_at) | last
+                | if . == null then "missing" elif .status != "completed" then "pending" else .conclusion end')"
+            [[ "${SOURCE_STATE}" == "pending" ]] || break
+            sleep 30
+          done
+          if [[ "${SOURCE_STATE}" != "success" ]]; then
+            echo "::error::The source gate for ${HEAD_SHA} is ${SOURCE_STATE}; rerun the source workflow before merging."
+            exit 1
+          fi
+
+  deploy:
+    name: Deploy
+    needs: conclusion
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.conclusion.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    environment: cloudflare
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 26
+          package-manager-cache: false
+
+      - name: Check npm install-script policy
+        run: node scripts/check-npm-install-policy.mjs .
+
+      - name: Install dependencies
+        # Fail if an unreviewed dependency install script is introduced.
+        run: npm ci --strict-allow-scripts
+
+      - name: Build site
+        run: npm run build
+
+      - name: Smoke test
+        run: npm run test:smoke
+
+      - name: Deploy reviewed revision to Cloudflare Workers
+        run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: "false"
+
+      - name: Verify the public revision
+        run: node scripts/verify-deployment.mjs https://starhaven.io/.well-known/revision.json "${GITHUB_SHA}"

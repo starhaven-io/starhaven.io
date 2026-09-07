@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { assertSupportedFeedMarkdown, renderPostContent } from '../src/lib/rss-content.ts';
+import { assertSupportedFeedMarkdown, renderPostContent, renderPostDescription } from '../src/lib/rss-content.ts';
 
 const SITE = 'https://starhaven.io';
 const POST = new URL('/blog/current/', SITE);
@@ -25,6 +25,15 @@ describe('renderPostContent', () => {
     assert.equal(markdownLink, '<p>[x](javascript:alert(1))</p>\n');
   });
 
+  it('keeps unsafe first definitions inert when labels are duplicated', () => {
+    const link = renderPostContent('[link][x]\n\n[x]: javascript:alert(1)\n[x]: https://safe.example/', POST);
+    assert.doesNotMatch(link, /href=/);
+    assert.match(link, /javascript:alert\(1\)/);
+
+    const image = renderPostContent('![image][x]\n\n[x]: https://tracker.example/pixel.png\n[x]: /og.png', POST);
+    assert.doesNotMatch(image, /<img|tracker\.example/);
+  });
+
   it('absolutizes relative links and images against the site', () => {
     const out = renderPostContent('[post](/blog/hello/) and ![alt](/img/pic.png)', SITE);
     assert.ok(out.includes('<a href="https://starhaven.io/blog/hello/">post</a>'));
@@ -37,10 +46,20 @@ describe('renderPostContent', () => {
     assert.ok(out.includes('href="https://starhaven.io/blog/current/other/"'));
   });
 
-  it('leaves absolute URLs alone', () => {
+  it('retains external links but removes external tracking images', () => {
     const out = renderPostContent('[ext](https://example.com/a) ![i](https://example.com/i.png)', SITE);
     assert.ok(out.includes('href="https://example.com/a"'));
-    assert.ok(out.includes('src="https://example.com/i.png"'));
+    assert.ok(!out.includes('<img'));
+  });
+
+  it('retains only credential-free HTTPS and mailto link targets', () => {
+    const accepted = renderPostContent('[secure](https://example.com/) [mail](mailto:security@starhaven.io)', POST);
+    assert.ok(accepted.includes('href="https://example.com/"'));
+    assert.ok(accepted.includes('href="mailto:security@starhaven.io"'));
+
+    for (const target of ['http://example.com/', 'ftp://example.com/', 'https://user@example.com/']) {
+      assert.doesNotMatch(renderPostContent(`[unsafe](${target})`, POST), /href=/, target);
+    }
   });
 
   it('rejects unsupported footnotes without rejecting examples in code fences', () => {
@@ -61,6 +80,20 @@ describe('renderPostContent', () => {
 
   it('drops images whose source scheme is not allowed', () => {
     assert.equal(renderPostContent('![x](data:image/png;base64,iVBORw0KGgo=)', POST), '<p></p>\n');
+  });
+
+  it('allows only credential-free same-origin HTTPS images', () => {
+    const accepted = renderPostContent('![x](/images/x.png)', POST);
+    assert.ok(accepted.includes('src="https://starhaven.io/images/x.png"'));
+
+    for (const source of [
+      'http://starhaven.io/x.png',
+      'ftp://starhaven.io/x.png',
+      '//example.com/x.png',
+      'https://user@starhaven.io/x.png',
+    ]) {
+      assert.ok(!renderPostContent(`![x](${source})`, POST).includes('<img'), source);
+    }
   });
 
   it('renders a representative document stably', () => {
@@ -89,5 +122,13 @@ describe('renderPostContent', () => {
     ].join('\n');
 
     assert.equal(renderPostContent(document, SITE), expected);
+  });
+});
+
+describe('renderPostDescription', () => {
+  it('preserves plain prose and rejects markup or control characters', () => {
+    assert.equal(renderPostDescription('Fish & chips.'), 'Fish & chips.');
+    assert.throws(() => renderPostDescription('A <strong>bold</strong> summary.'), /must be plain text/);
+    assert.throws(() => renderPostDescription('A hidden\nline.'), /must be plain text/);
   });
 });

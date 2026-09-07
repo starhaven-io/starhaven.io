@@ -47,7 +47,8 @@ model.
 - `public/`: Static assets, including the favicons and the default Open Graph
   image (`og.png`, 1200x630).
 - `wrangler.jsonc`: Cloudflare Workers configuration.
-- `.github/workflows/`: CI, deploy, link checking, and pinprick audit workflows.
+- `.github/workflows/`: CI (including protected-main deployment), CodeQL, link
+  checking, and workflow audit workflows.
 
 ## Safety / do-not-touch rules
 
