@@ -12,6 +12,9 @@ The website for [starhaven.io](https://starhaven.io).
 
 ## Development
 
+Development requires Node.js 26 or newer. Install the dependencies exactly as
+locked, then start Astro:
+
 ```bash
 npm ci --strict-allow-scripts
 npm run dev
@@ -25,25 +28,39 @@ Run `just install-hooks` once per clone to enable the git hooks (a pre-push `jus
 
 For local verification, run `just check`. It runs typos, Vale, zizmor,
 formatting, type checks, unit tests, a production build, post-build smoke
-assertions, and a Wrangler dry-run. Install the optional local tools with:
+assertions, and a Wrangler dry-run. The full gate requires these local tools:
 
 ```bash
-brew install just typos-cli vale zizmor lychee
+brew install just typos-cli vale zizmor
 ```
 
-Vale checks prose in `README.md` and `src/content/blog/`; the separate `just
-lychee` recipe checks links in the built site.
+Vale checks prose in `README.md` and `src/content/blog/`. The optional `just
+lychee` recipe checks links in the built site and requires `brew install
+lychee`.
 
 ## Blog posts
 
 Blog posts live in `src/content/blog/` and use `YYYY-MM-DD-slug.md` filenames.
 The filename supplies the publication date, determines chronological ordering,
 and forms the date-prefixed post URL, so do not add a separate `pubDate`
-frontmatter field.
+frontmatter field. An optional `updatedDate` YAML field in `YYYY-MM-DD` format
+supplies sitemap and article metadata and cannot precede the filename date.
+
+Titles and descriptions must be plain text. Raw HTML, non-HTTPS web links,
+credentialed links, and off-site images in blog Markdown fail the build. RSS
+descriptions are emitted as plain text, and RSS post bodies retain safe external
+links but include images only when they use HTTPS on `starhaven.io`.
 
 ## Deploy
 
-Pushes to `main` deploy to Cloudflare Workers via the `deploy-site` workflow.
+The `CI` workflow deploys a protected `main` push only after that exact commit
+passes the post-merge gate. The deployment publishes a revision receipt at
+`/.well-known/revision.json` and verifies the public response before reporting
+success.
+
+`npm run deploy` is guarded for that trusted GitHub Actions path and is not a
+local publication command. Use `npm run deploy:dry` to validate generated
+Wrangler output without publishing.
 
 <!-- fleet:block license-section -->
 

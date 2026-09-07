@@ -3,7 +3,7 @@
   --color-bg-secondary: #ffffff;
   --color-text: #18181b;
   --color-text-secondary: #52525b;
-  --color-text-subtle: #71717a;
+  --color-text-subtle: #6f6f78;
   --color-border: #e4e4e7;
   --color-link: #4338ca;
   --color-link-hover: #3730a3;
@@ -19,7 +19,7 @@
     --color-bg-secondary: #171717;
     --color-text: #fafafa;
     --color-text-secondary: #a1a1aa;
-    --color-text-subtle: #71717a;
+    --color-text-subtle: #85858f;
     --color-border: #27272a;
     --color-link: #a5b4fc;
     --color-link-hover: #c7d2fe;
@@ -63,6 +63,16 @@ a:hover {
   color: var(--color-link-hover);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+main p a,
+.post li a,
+.post th a,
+.post td a,
+.site-license a {
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.2em;
 }
 
 h1,

@@ -3,8 +3,10 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
+import { satteri } from '@astrojs/markdown-satteri';
 import sitemap from '@astrojs/sitemap';
-import { blogPostIdFromFilename, parseBlogPostId } from './src/lib/blog.ts';
+import { blogPostIdFromFilename, blogPostLastmodFromSource, formatBlogDate } from './src/lib/blog.ts';
+import { blogMarkdownPolicyPlugin } from './src/lib/markdown.ts';
 
 const BLOG_DIR = './src/content/blog';
 
@@ -14,16 +16,8 @@ function loadBlogPostLastmods() {
     if (!file.endsWith('.md')) continue;
     const slug = blogPostIdFromFilename(file);
     const route = `/blog/${slug}/`;
-    // Astro config runs before content collections, so updatedDate must be read here for sitemap metadata.
-    const fm = readFileSync(join(BLOG_DIR, file), 'utf8').match(/^---\r?\n([\s\S]*?)\r?\n---/);
-    const updated = fm?.[1].match(/^updatedDate:\s*['"]?([^'"\n]+?)['"]?\s*$/m)?.[1];
-    const date = updated ?? parseBlogPostId(slug).date.toISOString();
-    const parsed = new Date(date);
-    if (Number.isNaN(parsed.valueOf())) {
-      console.warn(`[sitemap] Skipping invalid frontmatter date in ${file}: ${date}`);
-      continue;
-    }
-    lastmods.set(route, parsed.toISOString());
+    const source = readFileSync(join(BLOG_DIR, file), 'utf8');
+    lastmods.set(route, formatBlogDate(blogPostLastmodFromSource(file, source)));
   }
   return lastmods;
 }
@@ -33,6 +27,7 @@ const blogLastmods = loadBlogPostLastmods();
 // https://astro.build/config
 export default defineConfig({
   site: 'https://starhaven.io',
+  session: false,
   trailingSlash: 'always',
   redirects: {
     '/blog/hello-starhaven': '/blog/2026-04-17-hello-starhaven/',
@@ -51,6 +46,7 @@ export default defineConfig({
     }),
   ],
   markdown: {
+    processor: satteri({ mdastPlugins: [blogMarkdownPolicyPlugin] }),
     shikiConfig: {
       themes: {
         light: 'github-light',
