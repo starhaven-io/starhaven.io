@@ -219,7 +219,11 @@ jobs:
   deploy:
     name: Deploy
     needs: conclusion
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.conclusion.result == 'success'
+    # `conclusion` needs `commits`, which is skipped on push; that skip would otherwise
+    # propagate down the chain and skip this job even when the gate succeeded.
+    if: >-
+      !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      && needs.conclusion.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
