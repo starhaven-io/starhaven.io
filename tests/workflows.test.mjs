@@ -52,6 +52,9 @@ describe('CI workflow', () => {
     assert.match(deploy, /github\.event_name == 'push'/);
     assert.match(deploy, /github\.ref == 'refs\/heads\/main'/);
     assert.match(deploy, /needs\.conclusion\.result == 'success'/);
+    // `conclusion` needs `commits`, skipped on push; without this the skip propagates here.
+    assert.match(deploy, /!cancelled\(\)/);
+    assert.doesNotMatch(deploy, /always\(\)/);
     assert.match(deploy, /node scripts\/verify-deployment\.mjs/);
     assert.equal(existsSync(new URL('../.github/workflows/deploy-site.yml', import.meta.url)), false);
   });
