@@ -38,6 +38,11 @@ Vale checks prose in `README.md` and `src/content/blog/`. The optional `just
 lychee` recipe checks links in the built site and requires `brew install
 lychee`.
 
+CI downloads Vale and lychee from literal release URLs and verifies their pinned
+SHA-256 digests before extraction. Renovate updates each release and digest
+together through the shared fleet preset. Internal link checks fail on errors
+or an empty scan and publish their report in the job summary.
+
 ## Blog posts
 
 Blog posts live in `src/content/blog/` and use `YYYY-MM-DD-slug.md` filenames.

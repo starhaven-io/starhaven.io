@@ -26,12 +26,14 @@ describe('CI workflow', () => {
         LINT_RESULT: 'success',
         BUILD_RESULT: 'success',
         ZIZMOR_RESULT: 'success',
+        PINPRICK_RESULT: event === 'push' ? 'skipped' : 'success',
         CODEQL_RESULT: event === 'push' ? 'skipped' : 'success',
       };
       assert.equal(run(sourceResult, results), 0);
-      for (const check of ['LINT_RESULT', 'BUILD_RESULT', 'ZIZMOR_RESULT', 'CODEQL_RESULT']) {
+      for (const check of ['LINT_RESULT', 'BUILD_RESULT', 'ZIZMOR_RESULT', 'PINPRICK_RESULT', 'CODEQL_RESULT']) {
         for (const status of ['failure', 'cancelled', 'skipped', '']) {
-          if (check === 'CODEQL_RESULT' && event === 'push' && status === 'skipped') continue;
+          if ((check === 'CODEQL_RESULT' || check === 'PINPRICK_RESULT') && event === 'push' && status === 'skipped')
+            continue;
           assert.notEqual(run(sourceResult, { ...results, [check]: status }), 0, `${event} ${check} ${status}`);
         }
       }
@@ -52,10 +54,11 @@ describe('CI workflow', () => {
     for (const [name, next] of [
       ['lint', 'build'],
       ['build', 'zizmor'],
-      ['zizmor', 'codeql'],
+      ['zizmor', 'pinprick'],
     ]) {
       assert.ok(job(name, next).includes(sourceEditGuard), `${name} lacks the source-edit guard`);
     }
+    assert.match(job('pinprick', 'codeql'), /github\.event_name == 'pull_request'.*github\.event\.action != 'edited'/);
     assert.match(
       job('codeql', 'source'),
       /github\.event\.action != 'edited' \|\| github\.event\.changes\.base\.ref\.from != ''/,
