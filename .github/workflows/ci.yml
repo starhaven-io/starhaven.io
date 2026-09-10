@@ -149,6 +149,17 @@ jobs:
       security-events: write # required for zizmor SARIF upload
     uses: starhaven-io/.github/.github/workflows/reusable-zizmor.yml@e748ec16bd1207114a766d1d761a6743a6e3bf3a # v2026.09.09.4
 
+  pinprick:
+    name: pinprick
+    if: github.event_name == 'pull_request' && (github.event.action != 'edited' || github.event.changes.base.ref.from != '')
+    permissions:
+      contents: read
+      security-events: write # required for pinprick SARIF upload
+    uses: starhaven-io/.github/.github/workflows/reusable-pinprick-audit.yml@e748ec16bd1207114a766d1d761a6743a6e3bf3a # v2026.09.09.4
+    with:
+      advanced-security: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+      fail-on-findings: true
+
   codeql:
     name: CodeQL
     if: github.event_name == 'pull_request' && (github.event.action != 'edited' || github.event.changes.base.ref.from != '')
@@ -168,7 +179,7 @@ jobs:
     # latest completed `source` check for the same head commit instead.
     name: source
     if: always() && (github.event_name != 'pull_request' || github.event.action != 'edited' || github.event.changes.base.ref.from != '')
-    needs: [lint, build, zizmor, codeql]
+    needs: [lint, build, zizmor, pinprick, codeql]
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -177,6 +188,7 @@ jobs:
           LINT_RESULT: ${{ needs.lint.result }}
           BUILD_RESULT: ${{ needs.build.result }}
           ZIZMOR_RESULT: ${{ needs.zizmor.result }}
+          PINPRICK_RESULT: ${{ needs.pinprick.result }}
           CODEQL_RESULT: ${{ needs.codeql.result }}
         run: |
           for RESULT in "${LINT_RESULT}" "${BUILD_RESULT}" "${ZIZMOR_RESULT}"; do
@@ -187,6 +199,10 @@ jobs:
           done
           if [[ "${CODEQL_RESULT}" != "success" && ! ( "${GITHUB_EVENT_NAME}" == "push" && "${CODEQL_RESULT}" == "skipped" ) ]]; then
             echo "::error::The required CodeQL check did not succeed."
+            exit 1
+          fi
+          if [[ "${PINPRICK_RESULT}" != "success" && ! ( "${GITHUB_EVENT_NAME}" == "push" && "${PINPRICK_RESULT}" == "skipped" ) ]]; then
+            echo "::error::The required pinprick check did not succeed."
             exit 1
           fi
 
