@@ -60,14 +60,13 @@ jobs:
       - name: Install Vale
         env:
           VALE_SHA256: "c8f9d6c8055442bc7e9c121b2498e6f0e3fb670f4665e6ee577f1897f7665cf6"
-          VALE_VERSION: "3.19.0"
         run: |
-          archive="vale_${VALE_VERSION}_Linux_64-bit.tar.gz"
+          archive="${RUNNER_TEMP}/vale.tar.gz"
           curl --fail --location --proto '=https' --proto-redir '=https' \
-            --output "${RUNNER_TEMP}/${archive}" \
-            "https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/${archive}"
-          echo "${VALE_SHA256}  ${RUNNER_TEMP}/${archive}" | sha256sum --check -
-          tar --extract --gzip --file "${RUNNER_TEMP}/${archive}" --directory "${RUNNER_TEMP}" vale
+            --output "${archive}" \
+            "https://github.com/vale-cli/vale/releases/download/v3.19.0/vale_3.19.0_Linux_64-bit.tar.gz"
+          echo "${VALE_SHA256}  ${archive}" | sha256sum --check --strict
+          tar --extract --gzip --file "${archive}" --directory "${RUNNER_TEMP}" vale
           echo "${RUNNER_TEMP}" >> "${GITHUB_PATH}"
 
       - name: Vale
@@ -111,11 +110,31 @@ jobs:
       - name: Smoke test
         run: npm run test:smoke
 
+      - name: Install lychee
+        env:
+          LYCHEE_SHA256: "1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a"
+        run: |
+          archive="${RUNNER_TEMP}/lychee.tar.gz"
+          curl --fail --location --proto '=https' --proto-redir '=https' \
+            --output "${archive}" \
+            "https://github.com/lycheeverse/lychee/releases/download/lychee-v0.24.2/lychee-x86_64-unknown-linux-gnu.tar.gz"
+          echo "${LYCHEE_SHA256}  ${archive}" | sha256sum --check --strict
+          tar -xzf "${archive}" -C "${RUNNER_TEMP}" --strip-components=1 lychee-x86_64-unknown-linux-gnu/lychee
+          echo "${RUNNER_TEMP}" >> "${GITHUB_PATH}"
+
       - name: Check internal links
-        uses: lycheeverse/lychee-action@e7477775783ea5526144ba13e8db5eec57747ce8 # v2.9.0
-        with:
-          args: "--offline --config lychee.toml --root-dir dist/client 'dist/client/**/*.html' README.md"
-          fail: true
+        run: |
+          report="${RUNNER_TEMP}/lychee.md"
+          status=0
+          lychee --offline --config lychee.toml --root-dir dist/client \
+            --format markdown --output "${report}" 'dist/client/**/*.html' README.md || status=$?
+          test -f "${report}"
+          tee -a "${GITHUB_STEP_SUMMARY}" < "${report}"
+          if grep -Eq 'Total[[:space:]]*\|[[:space:]]*0[[:space:]]*\|' "${report}"; then
+            echo "::error::lychee found no links to check"
+            exit 1
+          fi
+          exit "${status}"
 
       - name: Deploy dry-run
         run: npm run deploy:dry
