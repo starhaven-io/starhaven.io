@@ -69,28 +69,26 @@ const projects: Project[] = [
   <section class="projects" aria-labelledby="projects-heading">
     <h2 id="projects-heading">Projects</h2>
     <ul class="project-list">
-      {
-        projects.map((project) => (
-          <li class="project">
-            <h3>{project.name}</h3>
-            <p>{project.tagline}</p>
-            {project.install && <code class="install">{project.install}</code>}
-            <p class="links">
-              <a href={project.repo} rel="noopener">
-                Source
-              </a>
-              {project.site && (
-                <>
-                  {' · '}
-                  <a href={project.site} rel="noopener">
-                    Website
-                  </a>
-                </>
-              )}
-            </p>
-          </li>
-        ))
-      }
+      {projects.map((project) => (
+        <li class="project">
+          <h3>{project.name}</h3>
+          <p>{project.tagline}</p>
+          {project.install && <code class="install">{project.install}</code>}
+          <p class="links">
+            <a href={project.repo} rel="noopener">
+              Source
+            </a>
+            {project.site && (
+              <>
+                {' · '}
+                <a href={project.site} rel="noopener">
+                  Website
+                </a>
+              </>
+            )}
+          </p>
+        </li>
+      ))}
     </ul>
   </section>
 </Base>

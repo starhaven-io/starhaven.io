@@ -13,23 +13,21 @@ const posts = sortBlogPosts(await getCollection('blog')).map((post) => ({
 <Base title="Blog" description="Notes from starhaven.io.">
   <section>
     <h1>Blog</h1>
-    {
-      posts.length === 0 ? (
-        <p>Nothing here yet.</p>
-      ) : (
-        <ul class="post-list">
-          {posts.map(({ post, pubDate }) => (
-            <li>
-              <a href={`/blog/${post.id}/`}>
-                <h2>{post.data.title}</h2>
-                <time datetime={pubDate.toISOString()}>{formatLongDate(pubDate)}</time>
-                <p>{post.data.description}</p>
-              </a>
-            </li>
-          ))}
-        </ul>
-      )
-    }
+    {posts.length === 0 ? (
+      <p>Nothing here yet.</p>
+    ) : (
+      <ul class="post-list">
+        {posts.map(({ post, pubDate }) => (
+          <li>
+            <a href={`/blog/${post.id}/`}>
+              <h2>{post.data.title}</h2>
+              <time datetime={pubDate.toISOString()}>{formatLongDate(pubDate)}</time>
+              <p>{post.data.description}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
   </section>
 </Base>
 
