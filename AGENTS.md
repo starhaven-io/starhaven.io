@@ -21,8 +21,8 @@ model.
 - Use `npm run dev` for local development.
 - Use `npm run build` to build the Astro site.
 - Use `npm run check` to type-check Astro and TypeScript sources.
-- Use `npm test` to run the unit tests and `npm run test:smoke` for
-  post-build assertions on `dist/client`.
+- Use `npm test` to run the unit tests and the blog build tests, and
+  `npm run test:smoke` for post-build assertions on `dist/client`.
 - Use `npm run deploy:dry` to verify Wrangler deployment output without
   publishing.
 - Use `npm run format:check` to check formatting and `npm run format` to apply
@@ -66,7 +66,9 @@ model.
    a separate `markdown-it` and `sanitize-html` pipeline in
    `src/lib/rss-content.ts`; `tests/rss-content.test.mjs` pins its output so
    renderer divergence is reviewed explicitly. Footnotes fail the build until
-   the feed renderer supports equivalent output.
+   the feed renderer supports equivalent output. Astro's glob loader only logs
+   Markdown render errors, so the blog post route rejects unrendered posts;
+   `tests/build.test.mjs` proves that policy violations fail a real build.
 6. Keep dependency changes conservative. Prefer existing Astro, Cloudflare, and
    npm tooling over adding new frameworks or build layers.
 7. Do not edit generated build output under `dist/`.
