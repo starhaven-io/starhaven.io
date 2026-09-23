@@ -49,11 +49,23 @@ function validateUrl(value: string, kind: 'link' | 'image', node: MarkdownNode, 
   }
 }
 
+function footnoteError(node: MarkdownNode, context: MarkdownPluginContext): Error {
+  return new Error(
+    `Footnotes are not allowed in ${sourceLocation(node, context)}; the RSS feed cannot render them, so use ordinary links instead`,
+  );
+}
+
 export const blogMarkdownPolicyPlugin = {
   name: 'blog-markdown-policy',
   options: { position: true },
   html(node: MarkdownNode, context: MarkdownPluginContext): never {
     throw new Error(`Raw HTML is not allowed in ${sourceLocation(node, context)}; use Markdown syntax instead`);
+  },
+  footnoteDefinition(node: MarkdownNode, context: MarkdownPluginContext): never {
+    throw footnoteError(node, context);
+  },
+  footnoteReference(node: MarkdownNode, context: MarkdownPluginContext): never {
+    throw footnoteError(node, context);
   },
   after(root: MarkdownNode, context: MarkdownPluginContext) {
     const definitions = new Map<string, string>();

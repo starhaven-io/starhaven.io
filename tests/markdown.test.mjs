@@ -20,6 +20,19 @@ describe('blog Markdown policy', () => {
     }
   });
 
+  it('rejects footnotes wherever they are defined, but not footnote syntax in code', async () => {
+    for (const definition of ['[^1]: The note.', '> [^1]: The note.', '- [^1]: The note.']) {
+      await assert.rejects(
+        () => render(`A claim.[^1]\n\n${definition}`),
+        /Footnotes are not allowed in \/content\/example\.md:\d+:\d+/,
+        definition,
+      );
+    }
+
+    const example = await render('~~~\nA claim.[^1]\n\n[^1]: The note.\n~~~');
+    assert.match(example.code, /\[\^1\]: The note\./);
+  });
+
   it('rejects executable links, credentialed links, and off-origin images', async () => {
     for (const markdown of [
       '[run](javascript:alert(1))',

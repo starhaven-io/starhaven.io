@@ -51,10 +51,10 @@ and forms the date-prefixed post URL, so do not add a separate `pubDate`
 frontmatter field. An optional `updatedDate` YAML field in `YYYY-MM-DD` format
 supplies sitemap and article metadata and cannot precede the filename date.
 
-Titles and descriptions must be plain text. Raw HTML, non-HTTPS web links,
-credentialed links, and off-site images in blog Markdown fail the build. RSS
-descriptions are emitted as plain text, and RSS post bodies retain safe external
-links but include images only when they use HTTPS on `starhaven.io`.
+Titles and descriptions must be plain text. Raw HTML, footnotes, non-HTTPS web
+links, credentialed links, and off-site images in blog Markdown fail the build.
+RSS descriptions are emitted as plain text, and RSS post bodies retain safe
+external links but include images only when they use HTTPS on `starhaven.io`.
 
 ## Deploy
 

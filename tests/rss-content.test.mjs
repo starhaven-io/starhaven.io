@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { assertSupportedFeedMarkdown, renderPostContent, renderPostDescription } from '../src/lib/rss-content.ts';
+import { renderPostContent, renderPostDescription } from '../src/lib/rss-content.ts';
 
 const SITE = 'https://starhaven.io';
 const POST = new URL('/blog/current/', SITE);
@@ -60,22 +60,6 @@ describe('renderPostContent', () => {
     for (const target of ['http://example.com/', 'ftp://example.com/', 'https://user@example.com/']) {
       assert.doesNotMatch(renderPostContent(`[unsafe](${target})`, POST), /href=/, target);
     }
-  });
-
-  it('rejects unsupported footnotes without rejecting examples in code fences', () => {
-    assert.throws(
-      () => renderPostContent('text[^1]\n\n[^1]: a note with multiple words', POST),
-      /RSS rendering does not support footnotes in https:\/\/starhaven\.io\/blog\/current\//,
-    );
-    assert.match(renderPostContent('~~~md\n[^1]: example\n~~~', POST), /\[\^1\]: example/);
-  });
-
-  it('includes the source file name when rejecting a post body', () => {
-    assert.throws(
-      () => assertSupportedFeedMarkdown('text[^1]\n\n[^1]: note', 'example.md'),
-      /RSS rendering does not support footnotes in example\.md/,
-    );
-    assert.doesNotThrow(() => assertSupportedFeedMarkdown('~~~md\n[^1]: example\n~~~', 'example.md'));
   });
 
   it('drops images whose source scheme is not allowed', () => {

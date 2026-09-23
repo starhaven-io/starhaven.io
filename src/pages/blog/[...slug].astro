@@ -6,6 +6,11 @@ import { formatLongDate } from '../../lib/date';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
+  // Astro's glob loader logs a Markdown render error and keeps the entry without
+  // output, so a post rejected by the Markdown policy would otherwise build empty.
+  for (const post of posts) {
+    if (!post.rendered) throw new Error(`Blog post ${post.id} failed to render; see the content error above`);
+  }
   return posts.map((post) => ({
     params: { slug: post.id },
     props: { post },

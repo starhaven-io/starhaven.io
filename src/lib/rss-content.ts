@@ -8,23 +8,6 @@ const parser = new MarkdownIt();
 
 type Attributes = Record<string, string>;
 
-function hasFootnoteDefinition(body: string): boolean {
-  const fencedLines = new Set<number>();
-  for (const token of parser.parse(body, {})) {
-    if (token.type !== 'fence' || !token.map) continue;
-    for (let line = token.map[0]; line < token.map[1]; line += 1) {
-      fencedLines.add(line);
-    }
-  }
-  return body.split(/\r?\n/).some((line, index) => !fencedLines.has(index) && /^ {0,3}\[\^[^\]\r\n]+\]:/.test(line));
-}
-
-export function assertSupportedFeedMarkdown(body: string | undefined, label: string): void {
-  if (hasFootnoteDefinition(body ?? '')) {
-    throw new Error(`RSS rendering does not support footnotes in ${label}; replace them with ordinary links`);
-  }
-}
-
 function safeLink(attribs: Attributes, base: string | URL): Attributes {
   const value = attribs.href;
   if (!value) return attribs;
@@ -72,7 +55,6 @@ export function renderPostDescription(description: string): string {
 }
 
 export function renderPostContent(body: string | undefined, base: string | URL): string {
-  assertSupportedFeedMarkdown(body, base.toString());
   const rendered = parser.render(body ?? '');
 
   return sanitizeHtml(rendered, {
