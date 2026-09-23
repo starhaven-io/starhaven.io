@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import {
+  deploySite,
   parseRemoteMain,
   validateBuiltRevision,
   validateDeployContext,
@@ -79,6 +83,67 @@ describe('deployment guard', () => {
       () => parseRemoteMain(`${REVISION}\trefs/heads/main\n${OTHER_REVISION}\trefs/heads/other`),
       /exactly one full lowercase commit SHA/,
     );
+  });
+});
+
+describe('deployment', () => {
+  function attemptDeploy({
+    receipt = { revision: REVISION },
+    remote = REVISION,
+    status = '',
+    wranglerStatus = 0,
+  } = {}) {
+    const root = mkdtempSync(join(tmpdir(), 'starhaven-deploy-'));
+    const argsFile = join(root, 'wrangler-args');
+    try {
+      mkdirSync(join(root, 'node_modules', '.bin'), { recursive: true });
+      mkdirSync(join(root, 'dist', 'client', '.well-known'), { recursive: true });
+      writeFileSync(
+        join(root, 'node_modules', '.bin', 'wrangler'),
+        `#!/bin/sh\nprintf '%s\\n' "$@" > '${argsFile}'\nexit ${wranglerStatus}\n`,
+        { mode: 0o755 },
+      );
+      writeFileSync(join(root, 'dist', 'client', 'wrangler.json'), '{}');
+      if (receipt !== null) {
+        writeFileSync(join(root, 'dist', 'client', '.well-known', 'revision.json'), JSON.stringify(receipt));
+      }
+      const git = (_repoRoot, command) =>
+        ({ 'rev-parse': REVISION, status, 'ls-remote': `${remote}\trefs/heads/main` })[command];
+
+      let error;
+      try {
+        deploySite({ env: validContext().env, repoRoot: root, git });
+      } catch (caught) {
+        error = caught;
+      }
+      const wranglerArgs = existsSync(argsFile) ? readFileSync(argsFile, 'utf8').trim().split('\n') : null;
+      return { error, wranglerArgs, config: join(root, 'dist', 'client', 'wrangler.json') };
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  it('runs Wrangler with the built configuration for the verified revision', () => {
+    const { error, wranglerArgs, config } = attemptDeploy();
+    assert.equal(error, undefined);
+    assert.deepEqual(wranglerArgs, ['deploy', '--config', config]);
+  });
+
+  it('never starts Wrangler for an unverified revision', () => {
+    for (const [name, attempt, message] of [
+      ['mismatched receipt', { receipt: { revision: OTHER_REVISION } }, /exactly GITHUB_SHA/],
+      ['missing receipt', { receipt: null }, /receipt is missing/],
+      ['moved remote main', { remote: OTHER_REVISION }, /refusing a stale deployment/],
+      ['dirty worktree', { status: ' M tracked-file' }, /worktree must be clean/],
+    ]) {
+      const { error, wranglerArgs } = attemptDeploy(attempt);
+      assert.match(error?.message ?? '', message, name);
+      assert.equal(wranglerArgs, null, `${name}: Wrangler must not start`);
+    }
+  });
+
+  it('fails when Wrangler fails', () => {
+    assert.match(attemptDeploy({ wranglerStatus: 1 }).error?.message ?? '', /wrangler exited with status 1/);
   });
 });
 

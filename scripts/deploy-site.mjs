@@ -49,12 +49,15 @@ export function validateRemoteMain(remoteRevision, expectedRevision) {
   }
 }
 
-function git(repoRoot, ...args) {
+function runGit(repoRoot, ...args) {
   return execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' }).trim();
 }
 
-export function deploySite({ env = process.env } = {}) {
-  const repoRoot = fileURLToPath(new URL('..', import.meta.url));
+export function deploySite({
+  env = process.env,
+  repoRoot = fileURLToPath(new URL('..', import.meta.url)),
+  git = runGit,
+} = {}) {
   validateDeployContext({
     env,
     headSha: git(repoRoot, 'rev-parse', 'HEAD'),
