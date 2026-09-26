@@ -21,8 +21,8 @@ npm run dev
 ```
 
 The project explicitly denies its current dependency install scripts. `just
-npm-policy` verifies the lockfile policy; clean installs fail on any unreviewed
-script-bearing dependency.
+npm-policy` verifies the lockfile policy, and `.npmrc` enables strict
+install-script checks by default for local npm installs.
 
 Run `just install-hooks` once per clone to enable the git hooks (a pre-push `just check` and DCO sign-off enforcement).
 
