@@ -33,9 +33,9 @@
     "@types/markdown-it": "^14.2.0",
     "@types/sanitize-html": "^2.16.1",
     "prettier": "^3.9.9",
-    "prettier-plugin-astro": "^1.0.1",
+    "prettier-plugin-astro": "^1.1.0",
     "typescript": "^6.0.3",
-    "wrangler": "4.138.0"
+    "wrangler": "4.140.0"
   },
   "allowScripts": {
     "esbuild": false,
