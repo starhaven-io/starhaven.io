@@ -1,9 +1,9 @@
 # Agent Instructions for starhaven.io
 
-Run `just check` before committing or opening a PR. It is the closest local match
-to CI and covers typo checks, GitHub Actions auditing, formatting, Astro type
-checking, the Astro build, and Wrangler dry-run deploy validation when the
-required tools are installed.
+Run `just check` before committing, opening a PR, or handing off changes. It is
+the closest local match to CI; the `check` recipe in `justfile` lists what it
+runs. It exits non-zero when `typos`, Vale, or `zizmor` is not installed, so
+note any checks it skipped.
 
 ## Project overview
 
@@ -28,8 +28,6 @@ model.
 - Use `npm run format:check` to check formatting and `npm run format` to apply
   Prettier.
 - Use `just vale` to check prose in `README.md` and `src/content/blog/`.
-- Use `just check` before handing off changes. If `typos`, Vale, or `zizmor` is
-  not installed, note the skipped local checks.
 - Run `just install-hooks` once per clone to enable the DCO commit-msg hook and
   the pre-push `just check` hook.
 
