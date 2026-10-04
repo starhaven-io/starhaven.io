@@ -17,7 +17,5 @@ Policy: https://github.com/starhaven-io/starhaven.io/security/policy
 
 export const GET: APIRoute = ({ site }) => {
   const canonicalURL = new URL('.well-known/security.txt', site);
-  return new Response(getSecurityTxt(canonicalURL), {
-    headers: { 'content-type': 'text/plain; charset=utf-8' },
-  });
+  return new Response(getSecurityTxt(canonicalURL));
 };

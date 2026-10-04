@@ -93,6 +93,7 @@ assert.doesNotMatch(headers, /script-src 'self'/);
 assert.match(headers, /^\/$\s+Cache-Control: public, max-age=0, must-revalidate, no-transform/m);
 assert.match(headers, /\/\*\/\s+Cache-Control: public, max-age=0, must-revalidate, no-transform/);
 assert.match(headers, /\/\.well-known\/revision\.json\s+Cache-Control: no-store, no-transform/);
+assert.match(headers, /\/\.well-known\/security\.txt\s+Content-Type: text\/plain; charset=utf-8/);
 
 const redirects = read('_redirects').toString();
 assert.match(

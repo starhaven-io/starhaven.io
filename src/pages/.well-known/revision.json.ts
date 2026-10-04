@@ -8,7 +8,5 @@ export function GET() {
     throw new Error('GITHUB_SHA must be a full lowercase commit SHA');
   }
 
-  return new Response(`${JSON.stringify({ revision: revision ?? null })}\n`, {
-    headers: { 'content-type': 'application/json; charset=utf-8' },
-  });
+  return new Response(`${JSON.stringify({ revision: revision ?? null })}\n`);
 }
