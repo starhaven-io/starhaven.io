@@ -83,6 +83,8 @@ for (const [name, html] of websitePages) {
 for (const [name, html] of postPages) {
   assert.match(html, /<meta property="og:type" content="article">/, `${name}: wrong OG type`);
   assert.match(html, /<meta property="article:published_time" content="[^"]+">/, `${name}: missing publication time`);
+}
+for (const [name, html] of [websitePages[2], ...postPages]) {
   assert.match(html, /<time datetime="\d{4}-\d{2}-\d{2}"(?:\s|>)/, `${name}: visible date must use a calendar value`);
   assert.doesNotMatch(html, /<time datetime="[^"]*T/, `${name}: visible date must not depend on a timezone`);
 }
