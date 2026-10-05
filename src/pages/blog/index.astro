@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { parseBlogPostId, sortBlogPosts } from '../../lib/blog';
+import { formatBlogDate, parseBlogPostId, sortBlogPosts } from '../../lib/blog';
 import { formatLongDate } from '../../lib/date';
 
 const posts = sortBlogPosts(await getCollection('blog')).map((post) => ({
@@ -21,7 +21,7 @@ const posts = sortBlogPosts(await getCollection('blog')).map((post) => ({
           <li>
             <a href={`/blog/${post.id}/`}>
               <h2>{post.data.title}</h2>
-              <time datetime={pubDate.toISOString()}>{formatLongDate(pubDate)}</time>
+              <time datetime={formatBlogDate(pubDate)}>{formatLongDate(pubDate)}</time>
               <p>{post.data.description}</p>
             </a>
           </li>
