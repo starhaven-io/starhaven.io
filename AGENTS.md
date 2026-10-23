@@ -64,8 +64,10 @@ model.
    a separate `markdown-it` and `sanitize-html` pipeline in
    `src/lib/rss-content.ts`; `tests/rss-content.test.mjs` pins its output so
    renderer divergence is reviewed explicitly. Footnotes fail the build until
-   the feed renderer supports equivalent output. Astro's glob loader only logs
-   Markdown render errors, so the blog post route rejects unrendered posts;
+   the feed renderer supports equivalent output. Astro's glob loader logs and
+   rethrows Markdown render errors, aborting content sync before the blog post
+   route's `getStaticPaths` runs. Keep the route guard as a backstop for loaders
+   that only log the error and store an unrendered entry.
    `tests/build.test.mjs` proves that policy violations fail a real build.
 6. Keep dependency changes conservative. Prefer existing Astro, Cloudflare, and
    npm tooling over adding new frameworks or build layers.

@@ -60,7 +60,7 @@ describe('blog build', { concurrency: true, timeout: 180_000 }, () => {
       const { status, output } = await buildWithPost(body);
       assert.notEqual(status, 0, output);
       assert.match(output, error);
-      assert.match(output, /Blog post 2026-01-01-fixture failed to render/);
+      assert.match(output, /2026-01-01-fixture\.md/);
     });
   }
 
