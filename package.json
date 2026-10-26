@@ -19,23 +19,23 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^14.4.0",
+    "@astrojs/cloudflare": "^14.4.1",
     "@astrojs/markdown-satteri": "0.4.4",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
-    "astro": "^7.3.8",
+    "astro": "^7.4.1",
     "markdown-it": "^15.0.3",
     "sanitize-html": "^2.18.1",
     "yaml": "^2.9.1"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
+    "@astrojs/check": "^0.9.11",
     "@types/markdown-it": "^14.2.0",
     "@types/sanitize-html": "^2.16.2",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.1",
     "typescript": "^6.0.3",
-    "wrangler": "4.151.1"
+    "wrangler": "4.151.2"
   },
   "allowScripts": {
     "esbuild": false,
