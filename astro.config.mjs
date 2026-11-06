@@ -46,7 +46,9 @@ export default defineConfig({
     }),
   ],
   markdown: {
-    processor: satteri({ mdastPlugins: [blogMarkdownPolicyPlugin] }),
+    // Astro removes frontmatter before rendering, so a body-leading `---` block is
+    // content; parsing it again here would drop what the RSS renderer publishes.
+    processor: satteri({ mdastPlugins: [blogMarkdownPolicyPlugin], features: { frontmatter: false } }),
     shikiConfig: {
       themes: {
         light: 'github-light',
