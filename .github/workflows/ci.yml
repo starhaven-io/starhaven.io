@@ -72,12 +72,12 @@ jobs:
 
       - name: Install Vale
         env:
-          VALE_SHA256: "4bf5c5176b682b1da0830f471584d3494f1c2e27ee3029e1ad6f6661d4962182"
+          VALE_SHA256: "22aa69a556558e4a9dfc63c17030777383d8d3c48dcdfad655fa98e839d666ed"
         run: |
           archive="${RUNNER_TEMP}/vale.tar.gz"
           curl --fail --location --proto '=https' --proto-redir '=https' \
             --output "${archive}" \
-            "https://github.com/vale-cli/vale/releases/download/v3.25.1/vale_3.25.1_Linux_64-bit.tar.gz"
+            "https://github.com/vale-cli/vale/releases/download/v3.26.0/vale_3.26.0_Linux_64-bit.tar.gz"
           echo "${VALE_SHA256}  ${archive}" | sha256sum --check --strict
           tar --extract --gzip --file "${archive}" --directory "${RUNNER_TEMP}" vale
           echo "${RUNNER_TEMP}" >> "${GITHUB_PATH}"
