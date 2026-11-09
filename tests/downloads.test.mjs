@@ -34,6 +34,7 @@ const shell = (script, env) => spawnSync('bash', ['-euo', 'pipefail', '-c', scri
 
 describe('CI tool downloads', () => {
   for (const [job, name, digest] of [
+    ['lint', 'Install typos-cli', 'TYPOS_SHA256'],
     ['lint', 'Install Vale', 'VALE_SHA256'],
     ['build', 'Install lychee', 'LYCHEE_SHA256'],
   ]) {

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
@@ -67,5 +67,23 @@ describe('blog build', { concurrency: true, timeout: 180_000 }, () => {
   it('builds a valid post with an empty body', async () => {
     const { status, output } = await buildWithPost('');
     assert.equal(status, 0, output);
+  });
+
+  it('renders a body-leading YAML-looking block on the page and in the feed', async () => {
+    const root = siteWithPost('---\nnote: not frontmatter\n---\n\nVisible paragraph.');
+    try {
+      const { status, output } = await build(root);
+      assert.equal(status, 0, output);
+      const page = readFileSync(join(root, 'dist', 'client', 'blog', '2026-01-01-fixture', 'index.html'), 'utf8');
+      const feed = readFileSync(join(root, 'dist', 'client', 'rss.xml'), 'utf8');
+      for (const [name, html] of [
+        ['page', page],
+        ['feed', feed.replaceAll('&lt;', '<').replaceAll('&gt;', '>')],
+      ]) {
+        assert.match(html, /<hr\s*\/?>\s*<h2[^>]*>note: not frontmatter<\/h2>/, name);
+      }
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });
