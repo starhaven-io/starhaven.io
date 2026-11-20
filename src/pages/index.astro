@@ -8,6 +8,7 @@ interface Project {
   install?: string;
   repo: string;
   site?: string;
+  link: { label: string; href: string };
 }
 
 const projects: Project[] = [
@@ -17,6 +18,7 @@ const projects: Project[] = [
       'A native macOS GUI for Homebrew. Browse, search, install, and update formulae and casks without opening your terminal.',
     install: 'brew install brewy',
     repo: 'https://github.com/starhaven-io/Brewy',
+    link: { label: 'Brewy releases', href: 'https://github.com/starhaven-io/Brewy/releases' },
   },
   {
     name: 'macOSdb',
@@ -24,7 +26,8 @@ const projects: Project[] = [
       'A catalog of which versions of open-source components ship with each macOS and Xcode release. Includes curl, OpenSSH, LibreSSL, Swift, Apple Clang, and more.',
     install: 'brew install starhaven-io/tap/macosdb',
     repo: 'https://github.com/starhaven-io/macOSdb',
-    site: 'https://macosdb.com',
+    site: 'https://macosdb.com/',
+    link: { label: 'Compare macOS releases', href: 'https://macosdb.com/macos/compare/' },
   },
   {
     name: 'midden',
@@ -32,6 +35,7 @@ const projects: Project[] = [
       "A CLI that resolves, audits, visualizes, and cleans the heap of context and state Codex and Claude Code accumulate. Surfaces what's actually active for a directory with provenance, flags what's stale or leaking, and prunes what nothing else cleans up.",
     install: 'brew install starhaven-io/tap/midden',
     repo: 'https://github.com/starhaven-io/midden',
+    link: { label: 'midden CLI guide', href: 'https://github.com/starhaven-io/midden#usage' },
   },
   {
     name: 'pinprick',
@@ -39,20 +43,23 @@ const projects: Project[] = [
       'Supply-chain security for GitHub Actions. Pins action references to full SHAs and audits pinned actions for runtime fetches that bypass pinning.',
     install: 'brew install starhaven-io/tap/pinprick',
     repo: 'https://github.com/starhaven-io/pinprick',
-    site: 'https://pinprick.rs',
+    site: 'https://pinprick.rs/',
+    link: { label: 'Use the GitHub Action', href: 'https://github.com/starhaven-io/pinprick-action' },
   },
   {
     name: 'pkgstory',
     tagline:
       "The version history of every Homebrew formula and cask — which version shipped, and when — mined from git history into a browsable timeline. Deprecations and removals are recorded with the date and Homebrew's own reason.",
     repo: 'https://github.com/starhaven-io/pkgstory',
-    site: 'https://pkgstory.dev',
+    site: 'https://pkgstory.dev/',
+    link: { label: 'Explore Git’s package history', href: 'https://pkgstory.dev/homebrew-formula/git/' },
   },
   {
     name: 'rakkan',
     tagline: 'Tracks trusted publishing adoption across package registries using provenance accepted by each registry.',
     repo: 'https://github.com/starhaven-io/rakkan',
-    site: 'https://rakkan.dev',
+    site: 'https://rakkan.dev/',
+    link: { label: 'Browse RubyGems packages', href: 'https://rakkan.dev/packages/' },
   },
 ];
 ---
@@ -66,27 +73,31 @@ const projects: Project[] = [
     </p>
   </section>
 
-  <section class="projects" aria-labelledby="projects-heading">
+  <section aria-labelledby="projects-heading">
     <h2 id="projects-heading">Projects</h2>
-    <ul class="project-list">
+    <ul class="project-list" role="list">
       {projects.map((project) => (
         <li class="project">
-          <h3>{project.name}</h3>
-          <p>{project.tagline}</p>
-          {project.install && <code class="install">{project.install}</code>}
-          <p class="links">
-            <a href={project.repo} rel="noopener">
-              Source
-            </a>
+          <div class="project-heading">
+            <h3>
+              <a href={project.site ?? project.repo}>{project.name}</a>
+            </h3>
             {project.site && (
-              <>
-                {' · '}
-                <a href={project.site} rel="noopener">
-                  Website
-                </a>
-              </>
+              <a class="source" href={project.repo} aria-label={`${project.name} source code`}>
+                Source code
+              </a>
             )}
-          </p>
+          </div>
+          <p>{project.tagline}</p>
+          <div class="project-actions">
+            <a href={project.link.href}>{project.link.label}</a>
+            {project.install && (
+              <details>
+                <summary>Install {project.name}</summary>
+                <code>{project.install}</code>
+              </details>
+            )}
+          </div>
         </li>
       ))}
     </ul>
@@ -95,49 +106,93 @@ const projects: Project[] = [
 
 <style>
   .intro {
-    padding: 2rem 0 3rem;
+    padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
   }
 
   .lede {
-    font-size: 1.125rem;
-    color: var(--color-text-secondary);
     max-width: 56ch;
-  }
-
-  .projects {
-    padding-bottom: 2rem;
+    margin: 0;
+    font-size: 1.125rem;
   }
 
   .project-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
     display: grid;
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   .project {
-    background: var(--color-bg-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1rem 1.125rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
-    padding: 1.5rem;
+    background: var(--color-bg-secondary);
+  }
+
+  .project-heading,
+  .project-actions {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+  }
+
+  .project-heading {
+    justify-content: space-between;
+  }
+
+  .project h3,
+  .project p {
+    margin: 0;
   }
 
   .project h3 {
-    margin-top: 0;
+    font-size: 1.25rem;
   }
 
-  .install {
-    display: block;
-    margin: 0.75rem 0;
-    padding: 0.75rem 1rem;
+  .project p {
+    line-height: 1.45;
+  }
+
+  .source {
+    color: var(--color-text-secondary);
+    font-size: 0.8125rem;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .project-actions {
+    margin-top: auto;
     font-size: 0.875rem;
-    overflow-x: auto;
   }
 
-  .project .links {
-    margin: 0.75rem 0 0;
-    font-size: 0.9375rem;
-    color: var(--color-text-subtle);
+  .project-actions a {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .project-actions details[open] {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  .project-actions summary {
+    width: fit-content;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+
+  .project-actions code {
+    display: block;
+    margin-top: 0.35rem;
+    padding: 0.35rem 0.5rem;
+    overflow-wrap: anywhere;
+    background: var(--color-bg);
+    font-size: 0.8125rem;
   }
 </style>
