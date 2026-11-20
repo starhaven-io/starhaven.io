@@ -17,6 +17,7 @@ interface MarkdownNode {
 
 interface MarkdownPluginContext {
   fileURL?: URL;
+  data?: { astro?: { localImagePaths: Set<string> } };
 }
 
 function sourceLocation(node: MarkdownNode, context: MarkdownPluginContext): string {
@@ -84,7 +85,13 @@ export const blogMarkdownPolicyPlugin = {
         validateUrl(node.url, node.type, node, context);
       } else if ((node.type === 'linkReference' || node.type === 'imageReference') && node.identifier) {
         const url = definitions.get(node.identifier);
-        if (url !== undefined) validateUrl(url, node.type === 'linkReference' ? 'link' : 'image', node, context);
+        if (url === undefined) return;
+        const kind = node.type === 'linkReference' ? 'link' : 'image';
+        validateUrl(url, kind, node, context);
+        // Sätteri collects inline image destinations; reference-style images need their resolved local asset too.
+        if (kind === 'image' && !url.startsWith('/') && !URL.canParse(url)) {
+          context.data?.astro?.localImagePaths.add(decodeURI(url));
+        }
       }
     });
   },

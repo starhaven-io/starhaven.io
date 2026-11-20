@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import { SITE_URL } from '../src/consts.ts';
 
 const dist = path.resolve(process.argv[2] ?? 'dist/client');
 
@@ -123,6 +124,16 @@ for (const [, description] of rss.matchAll(/<description>([\s\S]*?)<\/descriptio
 }
 for (const [, url] of decodedRss.matchAll(/<[a-z][^>]*\s(?:href|src)="([^"]*)"/gi)) {
   assert.match(url, /^(?:[a-z][a-z\d+.-]*:|\/\/)/i, `rss: unresolved feed-content URL: ${url}`);
+}
+const site = new URL(SITE_URL);
+for (const [, src] of decodedRss.matchAll(/<img\b[^>]*?\ssrc="([^"]*)"/gi)) {
+  const url = new URL(decodeXmlEntities(src), site);
+  if (url.origin !== site.origin) continue;
+  const file = path.resolve(dist, `.${decodeURIComponent(url.pathname)}`);
+  assert.ok(
+    file.startsWith(`${dist}${path.sep}`) && statSync(file, { throwIfNoEntry: false })?.isFile(),
+    `rss: missing built image: ${url.href}`,
+  );
 }
 
 const revision = JSON.parse(read(path.join('.well-known', 'revision.json')).toString());
