@@ -69,6 +69,43 @@ describe('blog build', { concurrency: true, timeout: 180_000 }, () => {
     assert.equal(status, 0, output);
   });
 
+  it('uses the article’s published images in the feed', async () => {
+    const root = siteWithPost(
+      '![Chart](./50%25%20chart.png)\n\n![Detail][detail]\n\n[detail]: ./figures/detail.png\n\n![Logo](/favicon-32.png)',
+    );
+    try {
+      const blog = join(root, 'src', 'content', 'blog');
+      mkdirSync(join(blog, 'figures'));
+      cpSync(join(root, 'public', 'favicon-16.png'), join(blog, '50% chart.png'));
+      cpSync(join(root, 'public', 'favicon-32.png'), join(blog, 'figures', 'detail.png'));
+      mkdirSync(join(root, 'operations'));
+      cpSync(join(root, 'public', 'apple-touch-icon.png'), join(root, 'operations', 'unrelated-image.png'));
+      cpSync(join(root, 'public', 'og.png'), join(blog, 'unpublished-image.png'));
+      const { status, output } = await build(root);
+      assert.equal(status, 0, output);
+
+      const dist = join(root, 'dist', 'client');
+      assert.ok(
+        readdirSync(dist, { recursive: true }).every((file) => !/unrelated-image|unpublished-image/.test(file)),
+      );
+      const page = readFileSync(join(dist, 'blog', '2026-01-01-fixture', 'index.html'), 'utf8');
+      const feed = readFileSync(join(dist, 'rss.xml'), 'utf8')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"');
+      for (const alt of ['Chart', 'Detail', 'Logo']) {
+        const tag = new RegExp(`<img\\b[^>]*\\balt="${alt}"[^>]*>`);
+        const pageSrc = page.match(tag)?.[0].match(/\bsrc="([^"]+)"/)?.[1];
+        const feedSrc = feed.match(tag)?.[0].match(/\bsrc="([^"]+)"/)?.[1];
+        assert.match(pageSrc ?? '', alt === 'Logo' ? /^\/favicon-32\.png$/ : /^\/_astro\//, alt);
+        assert.equal(feedSrc, new URL(pageSrc, 'https://starhaven.io').href, alt);
+        assert.ok(readFileSync(join(dist, decodeURIComponent(pageSrc))).length > 0, alt);
+      }
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('renders a body-leading YAML-looking block on the page and in the feed', async () => {
     const root = siteWithPost('---\nnote: not frontmatter\n---\n\nVisible paragraph.');
     try {

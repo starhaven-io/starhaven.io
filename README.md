@@ -55,6 +55,8 @@ Titles and descriptions must be plain text. Raw HTML, footnotes, non-HTTPS web
 links, credentialed links, and off-site images in blog Markdown fail the build.
 RSS descriptions are emitted as plain text, and RSS post bodies retain safe
 external links but include images only when they use HTTPS on `starhaven.io`.
+Store article images alongside the Markdown file and reference them with relative
+paths. The article and RSS feed use the same built asset.
 
 Astro removes the frontmatter before a post body is rendered, so a second
 YAML-looking `---` block at the top of the body is ordinary Markdown. It renders

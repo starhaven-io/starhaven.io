@@ -52,6 +52,11 @@ describe('renderPostContent', () => {
     assert.ok(!out.includes('<img'));
   });
 
+  it('checks the origin of a resolved article image', () => {
+    const imageUrls = new Map([['./chart.png', 'https://images.example/chart.png']]);
+    assert.equal(renderPostContent('![Chart](./chart.png)', POST, imageUrls), '<p></p>\n');
+  });
+
   it('retains only credential-free HTTPS and mailto link targets', () => {
     const accepted = renderPostContent('[secure](https://example.com/) [mail](mailto:security@starhaven.io)', POST);
     assert.ok(accepted.includes('href="https://example.com/"'));

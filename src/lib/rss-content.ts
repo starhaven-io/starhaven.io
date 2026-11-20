@@ -29,13 +29,13 @@ function safeLink(attribs: Attributes, base: string | URL): Attributes {
   return safeAttributes;
 }
 
-function sameOriginImage(attribs: Attributes, base: string | URL): Attributes {
+function sameOriginImage(attribs: Attributes, base: string | URL, imageUrls: ReadonlyMap<string, string>): Attributes {
   const value = attribs.src;
   if (!value) return attribs;
 
   try {
     const baseUrl = new URL(base);
-    const source = new URL(value, baseUrl);
+    const source = new URL(imageUrls.get(decodeURI(value)) ?? value, baseUrl);
     if (source.protocol === 'https:' && source.origin === baseUrl.origin && !source.username && !source.password) {
       return { ...attribs, src: source.toString() };
     }
@@ -54,7 +54,11 @@ export function renderPostDescription(description: string): string {
   return description;
 }
 
-export function renderPostContent(body: string | undefined, base: string | URL): string {
+export function renderPostContent(
+  body: string | undefined,
+  base: string | URL,
+  imageUrls: ReadonlyMap<string, string> = new Map(),
+): string {
   const rendered = parser.render(body ?? '');
 
   return sanitizeHtml(rendered, {
@@ -69,7 +73,7 @@ export function renderPostContent(body: string | undefined, base: string | URL):
       }),
       img: (tagName, attribs) => ({
         tagName,
-        attribs: sameOriginImage(attribs, base),
+        attribs: sameOriginImage(attribs, base, imageUrls),
       }),
     },
     exclusiveFilter: (frame) => frame.tag === 'img' && !frame.attribs.src,
