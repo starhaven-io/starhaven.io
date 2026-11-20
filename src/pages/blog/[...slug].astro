@@ -19,7 +19,8 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
+const sections = headings.filter(({ depth, slug, text }) => (depth === 2 || depth === 3) && slug.trim() && text.trim());
 const pubDate = parseBlogPostId(post.id).date;
 ---
 
@@ -39,6 +40,20 @@ const pubDate = parseBlogPostId(post.id).date;
         </span>
       )}
     </header>
+    {sections.length >= 4 && (
+      <nav aria-label="Article sections" class="outline">
+        <details>
+          <summary>On this page</summary>
+          <ul role="list">
+            {sections.map(({ depth, slug, text }) => (
+              <li class:list={{ subsection: depth === 3 }}>
+                <a href={`#${slug}`}>{text}</a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      </nav>
+    )}
     <Content />
   </article>
 </Base>
@@ -58,6 +73,19 @@ const pubDate = parseBlogPostId(post.id).date;
   .updated {
     color: var(--color-text-subtle);
     font-size: 0.9375rem;
+  }
+
+  .outline {
+    margin-bottom: 2rem;
+    padding: 0.6rem 1rem;
+    border-inline-start: 2px solid var(--color-link);
+    background: var(--color-bg-secondary);
+  }
+
+  .outline summary {
+    color: var(--color-text);
+    font-weight: 600;
+    cursor: pointer;
   }
 
   .post :global(h2) {
@@ -84,6 +112,17 @@ const pubDate = parseBlogPostId(post.id).date;
 
   .post :global(li + li) {
     margin-top: 0.375rem;
+  }
+
+  .outline ul {
+    margin: 0.75rem 0 0.25rem;
+    padding: 0;
+    list-style: none;
+    font-size: 0.9375rem;
+  }
+
+  .outline .subsection {
+    padding-inline-start: 1rem;
   }
 
   .post :global(blockquote) {
